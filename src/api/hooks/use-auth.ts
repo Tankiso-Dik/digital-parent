@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiException } from "@/api/client";
 import { authService } from "@/api/services";
 import { AUTH_TOKEN_STORAGE_KEY, FAMILY_STORAGE_KEY } from "@/lib/constants";
+import { clearDemoSession } from "@/lib/demo-data";
 import type {
   FamilyApiResponse,
   FamilyData,
@@ -188,6 +189,7 @@ export function useLogout() {
   return () => {
     // Clear token from storage
     clearStoredToken();
+    clearDemoSession();
 
     // Clear family data from localStorage
     localStorage.removeItem(FAMILY_STORAGE_KEY);

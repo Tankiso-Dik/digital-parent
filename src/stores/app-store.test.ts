@@ -5,8 +5,8 @@ describe("AppStore", () => {
   // Store reset handled globally by setup.ts afterEach via resetAllStores()
 
   describe("initial state", () => {
-    it("initializes with activeModule = null (home dashboard)", () => {
-      expect(useAppStore.getState().activeModule).toBe(null);
+    it("initializes with activeModule = habits (digital habits dashboard)", () => {
+      expect(useAppStore.getState().activeModule).toBe("habits");
     });
 
     it("initializes with isSidebarOpen = false", () => {
@@ -16,6 +16,7 @@ describe("AppStore", () => {
 
   describe("setActiveModule", () => {
     const modules: ModuleType[] = [
+      "habits",
       "calendar",
       "lists",
       "chores",

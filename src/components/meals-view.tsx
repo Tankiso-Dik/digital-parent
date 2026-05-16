@@ -28,9 +28,14 @@ export function MealsView() {
       <div className="max-w-3xl mx-auto">
         {/* Week selector */}
         <div className="mb-6 flex items-center justify-between gap-3">
-          <h2 className="text-[24px] leading-8 font-semibold text-foreground">
-            Meal Planning
-          </h2>
+          <div>
+            <h2 className="text-[24px] leading-8 font-semibold text-foreground">
+              Daily Care
+            </h2>
+            <p className="text-sm leading-5 text-muted-foreground">
+              School-day meals, rest, and care routines
+            </p>
+          </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon-sm">
               <ChevronLeft className="h-4 w-4" />
@@ -79,9 +84,9 @@ export function MealsView() {
               </div>
               <div>
                 <h3 className="text-base leading-6 font-semibold text-foreground">
-                  Breakfast
+                  Morning Fuel
                 </h3>
-                <p className="text-xs text-muted-foreground">Morning meal</p>
+                <p className="text-xs text-muted-foreground">Before school</p>
               </div>
             </div>
             <div className="rounded-xl bg-yellow-50 p-4">
@@ -99,9 +104,11 @@ export function MealsView() {
               </div>
               <div>
                 <h3 className="text-base leading-6 font-semibold text-foreground">
-                  Lunch
+                  School Lunch
                 </h3>
-                <p className="text-xs text-muted-foreground">Midday meal</p>
+                <p className="text-xs text-muted-foreground">
+                  Packed or planned
+                </p>
               </div>
             </div>
             <div className="rounded-xl bg-orange-50 p-4">
@@ -119,9 +126,11 @@ export function MealsView() {
               </div>
               <div>
                 <h3 className="text-base leading-6 font-semibold text-foreground">
-                  Dinner
+                  Evening Reset
                 </h3>
-                <p className="text-xs text-muted-foreground">Evening meal</p>
+                <p className="text-xs text-muted-foreground">
+                  Family wind-down
+                </p>
               </div>
             </div>
             <div className="rounded-xl bg-indigo-50 p-4">

@@ -84,7 +84,7 @@ export function ListItemSheet({
     <MobileSheet
       isOpen={open}
       onClose={() => onOpenChange(false)}
-      title={mode === "edit" ? "Edit Item" : "Add Item"}
+      title={mode === "edit" ? "Edit Step" : "Add Step"}
       headerRight={
         <Button
           type="submit"
@@ -94,7 +94,7 @@ export function ListItemSheet({
           disabled={isPending}
           className="px-1 text-primary hover:text-primary"
         >
-          Save item
+          Save step
         </Button>
       }
     >
@@ -104,7 +104,7 @@ export function ListItemSheet({
         onSubmit={form.handleSubmit(submit)}
       >
         <div className="space-y-2">
-          <Label htmlFor="item-text">Item text</Label>
+          <Label htmlFor="item-text">Step</Label>
           <Input id="item-text" autoComplete="off" {...form.register("text")} />
           <FormError message={form.formState.errors.text?.message} />
         </div>

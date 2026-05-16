@@ -73,11 +73,11 @@ export function PhotosView() {
         {/* Header */}
         <div className="mb-6 flex items-center justify-between gap-3">
           <h2 className="text-[24px] leading-8 font-semibold text-foreground">
-            Family Photos
+            Memories & Milestones
           </h2>
           <Button className="bg-primary hover:bg-primary/90">
             <Upload className="mr-2 h-4 w-4" />
-            Upload Photo
+            Add Moment
           </Button>
         </div>
 

@@ -1,4 +1,5 @@
 import { httpClient } from "@/api/client";
+import { demoApi, isDemoModeActive } from "@/lib/demo-data";
 import { parseLocalDate } from "@/lib/time-utils";
 import type {
   ApiResponse,
@@ -37,6 +38,10 @@ export const calendarService = {
   async getEvents(
     params: GetEventsParams,
   ): Promise<ApiResponse<CalendarEvent[]>> {
+    if (isDemoModeActive()) {
+      return mapEventsResponse(demoApi.getEvents());
+    }
+
     return mapEventsResponse(
       await httpClient.get<ApiResponse<CalendarEventResponse[]>>(
         "/calendar/events",
@@ -48,6 +53,10 @@ export const calendarService = {
   },
 
   async getEventById(id: string): Promise<ApiResponse<CalendarEvent>> {
+    if (isDemoModeActive()) {
+      return mapEventResponse(demoApi.getEventById(id));
+    }
+
     return mapEventResponse(
       await httpClient.get<ApiResponse<CalendarEventResponse>>(
         `/calendar/events/${id}`,
@@ -58,6 +67,10 @@ export const calendarService = {
   async createEvent(
     request: CreateEventRequest,
   ): Promise<ApiResponse<CalendarEvent>> {
+    if (isDemoModeActive()) {
+      return mapEventResponse(demoApi.createEvent(request));
+    }
+
     return mapEventResponse(
       await httpClient.post<ApiResponse<CalendarEventResponse>>(
         "/calendar/events",
@@ -70,6 +83,10 @@ export const calendarService = {
     id: string,
     request: UpdateEventRequest,
   ): Promise<ApiResponse<CalendarEvent>> {
+    if (isDemoModeActive()) {
+      return mapEventResponse(demoApi.updateEvent(id, request));
+    }
+
     return mapEventResponse(
       await httpClient.put<ApiResponse<CalendarEventResponse>>(
         `/calendar/events/${id}`,
@@ -79,6 +96,11 @@ export const calendarService = {
   },
 
   async deleteEvent(id: string): Promise<void> {
+    if (isDemoModeActive()) {
+      demoApi.deleteEvent(id);
+      return;
+    }
+
     return httpClient.delete(`/calendar/events/${id}`);
   },
 
@@ -87,6 +109,10 @@ export const calendarService = {
     date: string,
     request: UpdateEventRequest,
   ): Promise<ApiResponse<CalendarEvent>> {
+    if (isDemoModeActive()) {
+      return mapEventResponse(demoApi.updateEvent(parentId, request));
+    }
+
     return mapEventResponse(
       await httpClient.put<ApiResponse<CalendarEventResponse>>(
         `/calendar/events/${parentId}/instances/${date}`,
@@ -96,6 +122,11 @@ export const calendarService = {
   },
 
   async deleteInstance(parentId: string, date: string): Promise<void> {
+    if (isDemoModeActive()) {
+      demoApi.deleteEvent(parentId);
+      return;
+    }
+
     return httpClient.delete(`/calendar/events/${parentId}/instances/${date}`);
   },
 };

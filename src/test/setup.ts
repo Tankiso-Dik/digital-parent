@@ -83,7 +83,7 @@ function resetAllStores(): void {
 
   // Reset app store
   useAppStore.setState({
-    activeModule: "calendar",
+    activeModule: "habits",
     isSidebarOpen: false,
   });
 
@@ -91,6 +91,7 @@ function resetAllStores(): void {
   useAuthStore.setState({
     _hasHydrated: false,
     isAuthenticated: false,
+    isDemoMode: false,
   });
   localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
 }

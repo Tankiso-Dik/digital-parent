@@ -1,9 +1,10 @@
 import {
   Calendar,
   CheckSquare,
+  HeartPulse,
   ImageIcon,
   ListTodo,
-  UtensilsCrossed,
+  MonitorSmartphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type ModuleType, useAppStore } from "@/stores";
@@ -12,11 +13,12 @@ import { type ModuleType, useAppStore } from "@/stores";
 export type TabType = ModuleType;
 
 const tabs = [
-  { id: "calendar" as ModuleType, label: "Calendar", icon: Calendar },
-  { id: "lists" as ModuleType, label: "Lists", icon: ListTodo },
-  { id: "chores" as ModuleType, label: "Chores", icon: CheckSquare },
-  { id: "meals" as ModuleType, label: "Meals", icon: UtensilsCrossed },
-  { id: "photos" as ModuleType, label: "Photos", icon: ImageIcon },
+  { id: "habits" as ModuleType, label: "Habits", icon: MonitorSmartphone },
+  { id: "calendar" as ModuleType, label: "School", icon: Calendar },
+  { id: "chores" as ModuleType, label: "Tasks", icon: CheckSquare },
+  { id: "lists" as ModuleType, label: "Rewards", icon: ListTodo },
+  { id: "meals" as ModuleType, label: "Care", icon: HeartPulse },
+  { id: "photos" as ModuleType, label: "Memories", icon: ImageIcon },
 ];
 
 export function NavigationTabs() {

@@ -45,17 +45,17 @@ export function ListsView() {
         <div className="mx-auto max-w-2xl space-y-6">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-[24px] font-semibold leading-8 text-foreground">
-              My Lists
+              Rewards & Goals
             </h2>
             <Button type="button" onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" />
-              New List
+              New Goal
             </Button>
           </div>
 
           <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-foreground">
-              Lists could not be loaded
+              Rewards could not be loaded
             </h3>
             <p className="mt-2 text-sm leading-5 text-muted-foreground">
               Check your connection and try again.
@@ -87,22 +87,22 @@ export function ListsView() {
       <div className="mx-auto max-w-2xl space-y-6">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-[24px] font-semibold leading-8 text-foreground">
-            My Lists
+            Rewards & Goals
           </h2>
           <Button type="button" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" />
-            New List
+            New Goal
           </Button>
         </div>
 
         {summaries.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border bg-card p-6 text-center shadow-sm">
             <h3 className="text-lg font-semibold text-foreground">
-              No lists yet
+              No goals yet
             </h3>
             <p className="mx-auto mt-2 max-w-sm text-sm leading-5 text-muted-foreground">
-              Create the first shared family list for groceries, errands, or
-              anything else worth keeping together.
+              Create the first reward, school target, or routine goal for the
+              kids to work toward.
             </p>
             <Button
               type="button"
@@ -110,7 +110,7 @@ export function ListsView() {
               onClick={() => setCreateOpen(true)}
             >
               <Plus className="h-4 w-4" />
-              Create first list
+              Create first goal
             </Button>
           </div>
         ) : (

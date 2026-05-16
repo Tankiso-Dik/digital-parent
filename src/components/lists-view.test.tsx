@@ -132,7 +132,7 @@ describe("ListsView hub", () => {
     render(<ListsView />);
 
     expect(
-      await screen.findByRole("heading", { name: "My Lists" }),
+      await screen.findByRole("heading", { name: "Rewards & Goals" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Trader Joe's Run/i }),
@@ -145,14 +145,14 @@ describe("ListsView hub", () => {
     expect(screen.queryByText("Vacation Planning")).not.toBeInTheDocument();
   });
 
-  it("shows the no-lists empty state with a create action", async () => {
+  it("shows the no-goals empty state with a create action", async () => {
     seedMockLists([]);
 
     render(<ListsView />);
 
-    expect(await screen.findByText("No lists yet")).toBeInTheDocument();
+    expect(await screen.findByText("No goals yet")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /new list/i }),
+      screen.getByRole("button", { name: /new goal/i }),
     ).toBeInTheDocument();
     expect(screen.queryByText("Grocery List")).not.toBeInTheDocument();
   });
@@ -167,20 +167,20 @@ describe("ListsView hub", () => {
     render(<ListsView />);
 
     expect(
-      await screen.findByText("Lists could not be loaded"),
+      await screen.findByText("Rewards could not be loaded"),
     ).toBeInTheDocument();
-    expect(screen.queryByText("No lists yet")).not.toBeInTheDocument();
+    expect(screen.queryByText("No goals yet")).not.toBeInTheDocument();
   });
 
-  it("creates a new grocery list through the mobile sheet flow", async () => {
+  it("creates a new reward ladder through the mobile sheet flow", async () => {
     seedMockLists([]);
 
     const { user } = renderWithUser(<ListsView />);
 
-    await user.click(await screen.findByRole("button", { name: /new list/i }));
-    await typeAndWait(user, screen.getByLabelText("List name"), "Target Run");
-    await user.click(screen.getByRole("radio", { name: "Grocery" }));
-    await user.click(screen.getByRole("button", { name: "Create list" }));
+    await user.click(await screen.findByRole("button", { name: /new goal/i }));
+    await typeAndWait(user, screen.getByLabelText("Goal name"), "Target Run");
+    await user.click(screen.getByRole("radio", { name: "Reward ladder" }));
+    await user.click(screen.getByRole("button", { name: "Create goal" }));
 
     expect(
       await screen.findByRole("heading", { name: "Target Run" }),
@@ -195,8 +195,8 @@ describe("ListsView hub", () => {
 
     const { user } = renderWithUser(<ListsView />);
 
-    await user.click(await screen.findByRole("button", { name: /new list/i }));
-    await typeAndWait(user, screen.getByLabelText("List name"), "Packing");
+    await user.click(await screen.findByRole("button", { name: /new goal/i }));
+    await typeAndWait(user, screen.getByLabelText("Goal name"), "Packing");
     await user.keyboard("{Enter}");
 
     expect(
@@ -293,9 +293,9 @@ describe("ListsView hub", () => {
       screen.queryByText("List preferences could not be loaded"),
     ).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Add item" }));
-    await typeAndWait(user, screen.getByLabelText("Item text"), "Trash bags");
-    await user.click(screen.getByRole("button", { name: "Save item" }));
+    await user.click(screen.getByRole("button", { name: "Add step" }));
+    await typeAndWait(user, screen.getByLabelText("Step"), "Trash bags");
+    await user.click(screen.getByRole("button", { name: "Save step" }));
 
     expect(await screen.findByText("Trash bags")).toBeInTheDocument();
   });
@@ -308,16 +308,16 @@ describe("ListsView hub", () => {
     await user.click(
       await screen.findByRole("button", { name: /Movie Night/i }),
     );
-    await user.click(screen.getByRole("button", { name: "Add item" }));
-    await typeAndWait(user, screen.getByLabelText("Item text"), "Popcorn");
-    await user.click(screen.getByRole("button", { name: "Save item" }));
+    await user.click(screen.getByRole("button", { name: "Add step" }));
+    await typeAndWait(user, screen.getByLabelText("Step"), "Popcorn");
+    await user.click(screen.getByRole("button", { name: "Save step" }));
 
     expect(await screen.findByText("Popcorn")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Edit" }));
-    await user.clear(screen.getByLabelText("Item text"));
-    await typeAndWait(user, screen.getByLabelText("Item text"), "Kettle corn");
-    await user.click(screen.getByRole("button", { name: "Save item" }));
+    await user.clear(screen.getByLabelText("Step"));
+    await typeAndWait(user, screen.getByLabelText("Step"), "Kettle corn");
+    await user.click(screen.getByRole("button", { name: "Save step" }));
 
     expect(await screen.findByText("Kettle corn")).toBeInTheDocument();
 
@@ -342,8 +342,8 @@ describe("ListsView hub", () => {
     await user.click(
       await screen.findByRole("button", { name: /Movie Night/i }),
     );
-    await user.click(screen.getByRole("button", { name: "Add item" }));
-    await typeAndWait(user, screen.getByLabelText("Item text"), "Blankets");
+    await user.click(screen.getByRole("button", { name: "Add step" }));
+    await typeAndWait(user, screen.getByLabelText("Step"), "Blankets");
     await user.keyboard("{Enter}");
 
     expect(await screen.findByText("Blankets")).toBeInTheDocument();
@@ -448,9 +448,9 @@ describe("ListsView hub", () => {
       await screen.findByRole("button", { name: /Movie Night/i }),
     );
 
-    expect(screen.getByText("No items yet")).toBeInTheDocument();
+    expect(screen.getByText("No steps yet")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Add item" }),
+      screen.getByRole("button", { name: "Add step" }),
     ).toBeInTheDocument();
   });
 });

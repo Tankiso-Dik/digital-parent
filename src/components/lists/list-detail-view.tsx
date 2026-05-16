@@ -20,9 +20,9 @@ import { ListItemRow } from "./list-item-row";
 import { ListItemSheet } from "./list-item-sheet";
 
 const kindLabels = {
-  grocery: "Grocery",
-  "to-do": "To-do",
-  general: "General",
+  grocery: "Supplies",
+  "to-do": "Reward ladder",
+  general: "Goal checklist",
 } as const;
 
 interface ListDetailViewProps {
@@ -62,7 +62,7 @@ export function ListDetailView({
       <div className="flex-1 p-4">
         <Button type="button" variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
-          Back to Lists
+          Back to Rewards
         </Button>
         <p className="mt-6 text-sm text-muted-foreground">
           This list could not be loaded.
@@ -94,8 +94,8 @@ export function ListDetailView({
         : "hide";
   const completedFallbackMessage =
     preferencesStatus === "loading"
-      ? "Family completed default is loading. Completed items are shown until it loads."
-      : "Family completed default is unavailable. Completed items are shown until it loads.";
+      ? "Completed-step preference is loading. Completed steps are shown until it loads."
+      : "Completed-step preference is unavailable. Completed steps are shown until it loads.";
   const clearCompletedDisabled =
     !list.items.some((item) => item.completed) ||
     updateItem.isPending ||
@@ -106,7 +106,7 @@ export function ListDetailView({
       <div className="mx-auto max-w-2xl space-y-4">
         <Button type="button" variant="ghost" onClick={onBack} className="px-0">
           <ArrowLeft className="h-4 w-4" />
-          Back to Lists
+          Back to Rewards
         </Button>
 
         <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
@@ -124,7 +124,7 @@ export function ListDetailView({
               onClick={() => setItemSheet({ mode: "create", item: null })}
             >
               <Plus className="h-4 w-4" />
-              Add item
+              Add step
             </Button>
           </div>
 
@@ -168,7 +168,7 @@ export function ListDetailView({
                 className="h-10 w-full rounded-lg border border-input bg-background px-3 text-[15px] leading-5 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <option value="family-default">
-                  Family default (
+                  Household default (
                   {hasPreferences
                     ? familyShowCompletedDefault
                       ? "show"
@@ -221,16 +221,16 @@ export function ListDetailView({
         {list.items.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border bg-card p-6 text-center shadow-sm">
             <h3 className="text-lg font-semibold text-foreground">
-              No items yet
+              No steps yet
             </h3>
             <p className="mx-auto mt-2 max-w-sm text-sm leading-5 text-muted-foreground">
-              Add the first item to get this list moving.
+              Add the first step toward this reward or goal.
             </p>
           </div>
         ) : visibleItemCount === 0 ? (
           <div className="rounded-lg border border-border bg-card p-6 text-center shadow-sm">
             <h3 className="text-lg font-semibold text-foreground">
-              No active items
+              No active steps
             </h3>
             <p className="mx-auto mt-2 max-w-sm text-sm leading-5 text-muted-foreground">
               Completed items are hidden for this list.

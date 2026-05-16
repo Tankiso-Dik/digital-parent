@@ -43,7 +43,7 @@ describe("OnboardingFlow", () => {
     it("renders welcome screen initially", () => {
       render(<OnboardingFlow />);
 
-      expect(screen.getByText("Welcome to FamilyHub")).toBeInTheDocument();
+      expect(screen.getByText("Welcome to ParentingPal")).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /get started/i }),
       ).toBeInTheDocument();
@@ -52,8 +52,8 @@ describe("OnboardingFlow", () => {
     it("shows feature highlights", () => {
       render(<OnboardingFlow />);
 
-      expect(screen.getByText("Shared Calendar")).toBeInTheDocument();
-      expect(screen.getByText("Family Profiles")).toBeInTheDocument();
+      expect(screen.getByText("Shared Family Calendar")).toBeInTheDocument();
+      expect(screen.getByText("Children's Profiles")).toBeInTheDocument();
     });
 
     it("advances to family name step on Get Started click", async () => {
@@ -84,7 +84,7 @@ describe("OnboardingFlow", () => {
       // Click back
       await user.click(screen.getByRole("button", { name: /go back/i }));
 
-      expect(screen.getByText("Welcome to FamilyHub")).toBeInTheDocument();
+      expect(screen.getByText("Welcome to ParentingPal")).toBeInTheDocument();
     });
 
     it("shows validation error for empty name", async () => {

@@ -1,10 +1,16 @@
 import { create } from "zustand";
 
-export type ModuleType = "calendar" | "lists" | "chores" | "meals" | "photos";
+export type ModuleType =
+  | "habits"
+  | "calendar"
+  | "lists"
+  | "chores"
+  | "meals"
+  | "photos";
 
 interface AppState {
   // State
-  activeModule: ModuleType | null; // null = home dashboard (mobile only)
+  activeModule: ModuleType | null; // null = legacy home dashboard route
   isSidebarOpen: boolean;
 
   // Actions
@@ -15,8 +21,8 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>((set) => ({
-  // Initial state - null shows home dashboard on mobile, desktop redirects to calendar
-  activeModule: null,
+  // Initial state - Digital Habits is the parenting command center.
+  activeModule: "habits",
   isSidebarOpen: false,
 
   // Actions

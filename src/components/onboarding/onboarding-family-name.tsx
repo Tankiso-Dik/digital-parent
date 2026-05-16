@@ -56,7 +56,7 @@ export function OnboardingFamilyName({
               What's your family name?
             </h1>
             <p className="text-muted-foreground">
-              This will be displayed at the top of your calendar.
+              This is the name of your family that will appear in the app.
             </p>
           </div>
 

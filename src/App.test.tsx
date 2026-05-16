@@ -23,7 +23,7 @@ describe("App", () => {
     // Use findByText to wait for lazy-loaded component
     expect(await screen.findByText("Welcome Back!")).toBeInTheDocument();
     expect(
-      screen.getByText("Sign in to your family calendar"),
+      screen.getByText("Sign in to your parenting dashboard"),
     ).toBeInTheDocument();
   });
 
@@ -34,6 +34,15 @@ describe("App", () => {
     expect(
       await screen.findByRole("button", { name: /sign in/i }),
     ).toBeInTheDocument();
+  });
+
+  it("starts demo mode from the login screen", async () => {
+    const { user } = renderWithUser(<FamilyHub />);
+
+    await user.click(await screen.findByRole("button", { name: /try demo/i }));
+
+    expect(await screen.findByText("The Thompsons")).toBeInTheDocument();
+    expect(screen.getByText("Demo Mode")).toBeInTheDocument();
   });
 
   it("navigates to onboarding when Create an account is clicked", async () => {
@@ -48,7 +57,9 @@ describe("App", () => {
     );
 
     // Should now show onboarding welcome screen
-    expect(await screen.findByText("Welcome to FamilyHub")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Welcome to ParentingPal"),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /get started/i }),
     ).toBeInTheDocument();

@@ -52,7 +52,7 @@ export function ChoresView() {
         <div className="mx-auto max-w-3xl">
           <div className="mb-6 flex items-center justify-between gap-3">
             <h1 className="text-[24px] leading-8 font-semibold text-foreground">
-              Chores
+              Responsibilities
             </h1>
             <Button
               type="button"
@@ -83,7 +83,7 @@ export function ChoresView() {
                 No chores yet
               </h2>
               <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-muted-foreground">
-                Add the first chore to start the family board.
+                Add the first responsibility to start building daily rhythm.
               </p>
               <Button
                 type="button"
@@ -91,7 +91,7 @@ export function ChoresView() {
                 onClick={() => setCreateOpen(true)}
               >
                 <Plus className="h-4 w-4" />
-                Add chore
+                Add task
               </Button>
             </div>
           )}

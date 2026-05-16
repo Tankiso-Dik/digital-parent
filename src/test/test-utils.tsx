@@ -298,7 +298,7 @@ export function resetCalendarStore(): void {
  */
 export function resetAppStore(): void {
   const store = useAppStore.getState();
-  store.setActiveModule("calendar");
+  store.setActiveModule("habits");
   store.closeSidebar();
 }
 
@@ -336,6 +336,7 @@ export function resetAuthStore(): void {
   useAuthStore.setState({
     _hasHydrated: false,
     isAuthenticated: false,
+    isDemoMode: false,
   });
   localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
 }
@@ -350,6 +351,7 @@ export function seedAuthStore(data?: { isAuthenticated?: boolean }): void {
   useAuthStore.setState({
     _hasHydrated: true,
     isAuthenticated: data?.isAuthenticated ?? false,
+    isDemoMode: false,
   });
 }
 

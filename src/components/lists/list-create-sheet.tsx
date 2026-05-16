@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ClipboardList, ListTodo, ShoppingCart } from "lucide-react";
+import { ClipboardList, Trophy } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useCreateList } from "@/api";
 import { cn } from "@/lib/utils";
@@ -19,21 +19,15 @@ interface ListCreateSheetProps {
 
 const kindOptions = [
   {
-    value: "grocery",
-    label: "Grocery",
-    description: "Shopping categories like Produce, Dairy, and Pantry",
-    icon: ShoppingCart,
-  },
-  {
     value: "to-do",
-    label: "To-do",
-    description: "Light buckets like Urgent, Soon, and Later",
-    icon: ListTodo,
+    label: "Reward ladder",
+    description: "Track steps toward privileges, streaks, and earned wins",
+    icon: Trophy,
   },
   {
     value: "general",
-    label: "General",
-    description: "A flat checklist without categories",
+    label: "Goal checklist",
+    description: "Simple targets for school, routines, or behavior",
     icon: ClipboardList,
   },
 ] as const;
@@ -62,7 +56,7 @@ export function ListCreateSheet({
     <MobileSheet
       isOpen={open}
       onClose={() => onOpenChange(false)}
-      title="New List"
+      title="New Goal"
       headerRight={
         <Button
           type="submit"
@@ -72,7 +66,7 @@ export function ListCreateSheet({
           disabled={createList.isPending}
           className="px-1 text-primary hover:text-primary"
         >
-          Create list
+          Create goal
         </Button>
       }
     >
@@ -82,17 +76,17 @@ export function ListCreateSheet({
         onSubmit={form.handleSubmit((values) => createList.mutate(values))}
       >
         <button type="submit" className="sr-only" tabIndex={-1} aria-hidden>
-          Create list
+          Create goal
         </button>
         <div className="space-y-2">
-          <Label htmlFor="list-name">List name</Label>
+          <Label htmlFor="list-name">Goal name</Label>
           <Input id="list-name" autoComplete="off" {...form.register("name")} />
           <FormError message={form.formState.errors.name?.message} />
         </div>
 
         <fieldset className="space-y-3">
           <legend className="text-sm font-semibold text-foreground">
-            List kind
+            Goal type
           </legend>
           {kindOptions.map((option) => {
             const Icon = option.icon;

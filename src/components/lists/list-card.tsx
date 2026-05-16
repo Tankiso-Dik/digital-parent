@@ -1,4 +1,4 @@
-import { ClipboardList, ListTodo, ShoppingCart } from "lucide-react";
+import { ClipboardList, PackageCheck, Trophy } from "lucide-react";
 import type { ListKind, ListSummary } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -11,22 +11,22 @@ const kindMeta: Record<
   ListKind,
   {
     label: string;
-    icon: typeof ShoppingCart;
+    icon: typeof Trophy;
     className: string;
   }
 > = {
   grocery: {
-    label: "Grocery",
-    icon: ShoppingCart,
+    label: "Supplies",
+    icon: PackageCheck,
     className: "bg-emerald-100 text-emerald-700",
   },
   "to-do": {
-    label: "To-do",
-    icon: ListTodo,
+    label: "Reward",
+    icon: Trophy,
     className: "bg-sky-100 text-sky-700",
   },
   general: {
-    label: "General",
+    label: "Goal",
     icon: ClipboardList,
     className: "bg-amber-100 text-amber-700",
   },

@@ -48,16 +48,16 @@ describe("App shell", () => {
     });
   });
 
-  it("renders mobile bottom nav with Home active on mobile home", async () => {
+  it("renders mobile bottom nav with Habits active on first load", async () => {
     setViewportWidth(768);
-    useAppStore.setState({ activeModule: null, isSidebarOpen: false });
+    useAppStore.setState({ activeModule: "habits", isSidebarOpen: false });
 
     render(<FamilyHub />);
 
     expect(
       await screen.findByRole("navigation", { name: /primary/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^home$/i })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: /^habits$/i })).toHaveAttribute(
       "aria-current",
       "page",
     );
@@ -66,14 +66,14 @@ describe("App shell", () => {
 
   it("does not render the desktop rail at the 768px mobile boundary", async () => {
     setViewportWidth(768);
-    useAppStore.setState({ activeModule: null, isSidebarOpen: false });
+    useAppStore.setState({ activeModule: "habits", isSidebarOpen: false });
 
     render(<FamilyHub />);
 
     expect(
       await screen.findByRole("navigation", { name: /primary/i }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText(/^calendar$/i)).toHaveLength(1);
+    expect(screen.getAllByText(/^school$/i)).toHaveLength(1);
   });
 
   it("suppresses AppHeader on mobile calendar while keeping bottom nav", async () => {
@@ -88,7 +88,9 @@ describe("App shell", () => {
     expect(
       screen.queryByRole("heading", { name: /test family/i }),
     ).not.toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /^home$/i })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /^habits$/i })).toHaveLength(
+      1,
+    );
     expect(screen.getByRole("button", { name: /^menu$/i })).toBeInTheDocument();
   });
 

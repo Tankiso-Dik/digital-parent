@@ -22,3 +22,13 @@ export const AUTH_TOKEN_STORAGE_KEY = "family-hub-auth-token";
  * Used only in mock mode for simulating auth backend.
  */
 export const MOCK_USERS_STORAGE_KEY = "family-hub-mock-users";
+
+/**
+ * localStorage key for tracking the in-browser demo session.
+ */
+export const DEMO_MODE_STORAGE_KEY = "family-hub-demo-mode";
+
+/**
+ * localStorage key for demo API data.
+ */
+export const DEMO_DATA_STORAGE_KEY = "family-hub-demo-data";

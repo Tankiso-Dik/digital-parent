@@ -5,6 +5,7 @@ export {
   useAuthHasHydrated,
   useAuthStore,
   useIsAuthenticated,
+  useIsDemoMode,
 } from "./auth-store";
 // Calendar Store
 export {

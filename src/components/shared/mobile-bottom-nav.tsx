@@ -1,23 +1,23 @@
 import {
   Calendar,
   CheckSquare,
-  Home,
+  HeartPulse,
   ImageIcon,
   ListTodo,
   type LucideIcon,
-  UtensilsCrossed,
+  MonitorSmartphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type ModuleType, useAppStore } from "@/stores";
 
 const tabs: Array<{ id: ModuleType | null; label: string; icon: LucideIcon }> =
   [
-    { id: null, label: "Home", icon: Home },
-    { id: "calendar", label: "Calendar", icon: Calendar },
-    { id: "lists", label: "Lists", icon: ListTodo },
-    { id: "chores", label: "Chores", icon: CheckSquare },
-    { id: "meals", label: "Meals", icon: UtensilsCrossed },
-    { id: "photos", label: "Photos", icon: ImageIcon },
+    { id: "habits", label: "Habits", icon: MonitorSmartphone },
+    { id: "calendar", label: "School", icon: Calendar },
+    { id: "chores", label: "Tasks", icon: CheckSquare },
+    { id: "lists", label: "Rewards", icon: ListTodo },
+    { id: "meals", label: "Care", icon: HeartPulse },
+    { id: "photos", label: "Memories", icon: ImageIcon },
   ];
 
 export function MobileBottomNav() {

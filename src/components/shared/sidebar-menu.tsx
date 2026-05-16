@@ -61,9 +61,9 @@ export function SidebarMenu() {
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div>
             <h2 className="text-lg font-bold text-foreground">
-              {familyName || "Family Hub"}
+              {familyName || "ParentingPal"}
             </h2>
-            <p className="text-sm text-muted-foreground">Calendar Settings</p>
+            <p className="text-sm text-muted-foreground">App Settings</p>
           </div>
           <Button variant="ghost" size="icon" onClick={closeSidebar}>
             <X className="h-5 w-5" />
@@ -73,7 +73,7 @@ export function SidebarMenu() {
         {/* Family Members */}
         <div className="p-4 border-b border-border">
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            Family Members
+            Children & Family
           </h3>
           <div className="space-y-2">
             {familyMembers.length > 0 ? (

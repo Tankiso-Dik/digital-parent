@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useSetupComplete } from "@/api";
 import { CalendarModule } from "@/components/calendar";
-import { HomeDashboard } from "@/components/home";
+import { DigitalHabitsView } from "@/components/digital-habits-view";
 import {
   AppHeader,
   MobileBottomNav,
@@ -50,10 +50,12 @@ function ModuleLoader() {
 
 function renderModule(activeModule: ModuleType | null) {
   if (activeModule === null) {
-    return <HomeDashboard />;
+    return <DigitalHabitsView />;
   }
 
   switch (activeModule) {
+    case "habits":
+      return <DigitalHabitsView />;
     case "calendar":
       return <CalendarModule />;
     case "chores":
@@ -107,10 +109,10 @@ export default function FamilyHub() {
   // State to toggle between login and onboarding for new users
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // On desktop, redirect null (home) to calendar since home is mobile-only
+  // Keep legacy null routes on the new parenting command center.
   useEffect(() => {
     if (!isMobile && activeModule === null) {
-      setActiveModule("calendar");
+      setActiveModule("habits");
     }
   }, [isMobile, activeModule, setActiveModule]);
 

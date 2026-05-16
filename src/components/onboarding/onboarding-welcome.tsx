@@ -19,11 +19,11 @@ export function OnboardingWelcome({ onNext }: OnboardingWelcomeProps) {
         {/* Welcome Text */}
         <div className="space-y-3">
           <h1 className="text-3xl font-bold text-foreground">
-            Welcome to FamilyHub
+            Welcome to ParentingPal
           </h1>
           <p className="text-lg text-muted-foreground">
-            Your family's central place for schedules, chores, and staying
-            connected.
+            Your all-in-one companion for managing the family's schedule, tasks,
+            meals, and daily life.
           </p>
         </div>
 
@@ -34,7 +34,9 @@ export function OnboardingWelcome({ onNext }: OnboardingWelcomeProps) {
               <Calendar className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="font-medium text-foreground">Shared Calendar</p>
+              <p className="font-medium text-foreground">
+                Shared Family Calendar
+              </p>
               <p className="text-sm text-muted-foreground">
                 See everyone's schedule at a glance
               </p>
@@ -46,9 +48,9 @@ export function OnboardingWelcome({ onNext }: OnboardingWelcomeProps) {
               <Users className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="font-medium text-foreground">Family Profiles</p>
+              <p className="font-medium text-foreground">Children's Profiles</p>
               <p className="text-sm text-muted-foreground">
-                Color-coded events for each member
+                Track each child's activities with color-coded events
               </p>
             </div>
           </div>

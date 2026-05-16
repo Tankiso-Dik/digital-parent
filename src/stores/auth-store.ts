@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { AUTH_TOKEN_STORAGE_KEY } from "@/lib/constants";
+import { AUTH_TOKEN_STORAGE_KEY, DEMO_MODE_STORAGE_KEY } from "@/lib/constants";
 
 /**
  * Auth store - handles token hydration state.
@@ -21,16 +21,20 @@ interface AuthHydrationState {
    * Updated during hydration and by auth operations.
    */
   isAuthenticated: boolean;
+  isDemoMode: boolean;
 
   setHasHydrated: (state: boolean) => void;
   setAuthenticated: (state: boolean) => void;
+  setDemoMode: (state: boolean) => void;
 }
 
 export const useAuthStore = create<AuthHydrationState>()((set) => ({
   _hasHydrated: false,
   isAuthenticated: false,
+  isDemoMode: false,
   setHasHydrated: (state) => set({ _hasHydrated: state }),
   setAuthenticated: (state) => set({ isAuthenticated: state }),
+  setDemoMode: (state) => set({ isDemoMode: state }),
 }));
 
 // ============================================================================
@@ -50,7 +54,9 @@ function initializeAuthHydration(): void {
 
   try {
     const token = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+    const isDemoMode = localStorage.getItem(DEMO_MODE_STORAGE_KEY) === "true";
     useAuthStore.getState().setAuthenticated(!!token);
+    useAuthStore.getState().setDemoMode(isDemoMode);
     useAuthStore.getState().setHasHydrated(true);
   } catch (error) {
     if (import.meta.env.DEV) {
@@ -80,3 +86,8 @@ export const useAuthHasHydrated = () =>
  */
 export const useIsAuthenticated = () =>
   useAuthStore((state) => state.isAuthenticated);
+
+/**
+ * Check if the current authenticated session is the local demo.
+ */
+export const useIsDemoMode = () => useAuthStore((state) => state.isDemoMode);

@@ -19,7 +19,7 @@ export function OnboardingWelcome({ onNext }: OnboardingWelcomeProps) {
         {/* Welcome Text */}
         <div className="space-y-3">
           <h1 className="text-3xl font-bold text-foreground">
-            Welcome to ParentingPal
+            Welcome to Digital Parent
           </h1>
           <p className="text-lg text-muted-foreground">
             Your all-in-one companion for managing the family's schedule, tasks,

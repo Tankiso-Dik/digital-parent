@@ -43,7 +43,7 @@ describe("OnboardingFlow", () => {
     it("renders welcome screen initially", () => {
       render(<OnboardingFlow />);
 
-      expect(screen.getByText("Welcome to ParentingPal")).toBeInTheDocument();
+      expect(screen.getByText("Welcome to Digital Parent")).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /get started/i }),
       ).toBeInTheDocument();
@@ -84,7 +84,7 @@ describe("OnboardingFlow", () => {
       // Click back
       await user.click(screen.getByRole("button", { name: /go back/i }));
 
-      expect(screen.getByText("Welcome to ParentingPal")).toBeInTheDocument();
+      expect(screen.getByText("Welcome to Digital Parent")).toBeInTheDocument();
     });
 
     it("shows validation error for empty name", async () => {

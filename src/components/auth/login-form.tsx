@@ -148,7 +148,7 @@ export function LoginForm({ onSwitchToOnboarding }: LoginFormProps) {
 
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              New to ParentingPal?{" "}
+              New to Digital Parent?{" "}
               <button
                 type="button"
                 onClick={onSwitchToOnboarding}

@@ -20,8 +20,8 @@ export default defineConfig(() => {
         registerType: "autoUpdate",
         includeAssets: ["favicon.ico", "apple-touch-icon.png", "icons/*.png"],
         manifest: {
-          name: "FamilyHub",
-          short_name: "FamilyHub",
+          name: "Digital Parent",
+          short_name: "Digital Parent",
           description: "Your family's command center",
           id: "/",
           scope: "/",

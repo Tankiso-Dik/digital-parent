@@ -172,6 +172,13 @@ export function DigitalHabitsView() {
   return (
     <div className="flex-1 overflow-y-auto bg-background">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-5 sm:px-6 lg:py-8">
+        {/* App name label */}
+        <div className="flex justify-center">
+          <span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+            Digital Parent
+          </span>
+        </div>
+
         <section className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
           <div className="rounded-[2rem] bg-[#23342f] p-5 text-[#fffaf0] shadow-sm sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">

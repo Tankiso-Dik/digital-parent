@@ -58,7 +58,7 @@ export function AppHeader() {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-[22px] leading-7 font-semibold text-foreground">
-              {familyName || "ParentingPal"}
+              {familyName || "Digital Parent"}
             </h1>
             {isDemoMode && (
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">

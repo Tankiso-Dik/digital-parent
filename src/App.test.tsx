@@ -58,7 +58,7 @@ describe("App", () => {
 
     // Should now show onboarding welcome screen
     expect(
-      await screen.findByText("Welcome to ParentingPal"),
+      await screen.findByText("Welcome to Digital Parent"),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /get started/i }),

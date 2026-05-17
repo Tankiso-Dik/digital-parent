@@ -34,8 +34,8 @@ export function SandboxUsersModal() {
           </DialogTitle>
           <DialogDescription>
             This application uses hashed passwords for security. For
-            school/grading purposes, here are all existing accounts currently in
-            the development database.
+            school/grading purposes, here are the captured credentials for
+            sandbox accounts.
           </DialogDescription>
         </DialogHeader>
 
@@ -60,8 +60,9 @@ export function SandboxUsersModal() {
                 >
                   <div>
                     <p className="font-semibold">{user.name}</p>
-                    <p className="text-xs text-muted-foreground uppercase">
-                      {user.id}
+                    <p className="text-xs text-muted-foreground">
+                      Password:{" "}
+                      <span className="font-mono">{user.sandboxPassword}</span>
                     </p>
                   </div>
                 </div>

@@ -8,8 +8,8 @@ export type TabType = ModuleType;
 const tabs = [
   { id: "calendar" as ModuleType, label: "Schedule", icon: Calendar },
   { id: "chores" as ModuleType, label: "Tasks", icon: CheckSquare },
-  { id: "lists" as ModuleType, label: "Goals", icon: ListTodo },
-  { id: "meals" as ModuleType, label: "Care", icon: HeartPulse },
+  { id: "lists" as ModuleType, label: "Planning", icon: ListTodo },
+  { id: "meals" as ModuleType, label: "Routines", icon: HeartPulse },
 ];
 
 export function NavigationTabs() {

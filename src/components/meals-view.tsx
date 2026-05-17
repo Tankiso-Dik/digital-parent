@@ -29,10 +29,10 @@ export function MealsView() {
         <div className="mb-6 flex items-center justify-between gap-3">
           <div>
             <h2 className="text-[24px] leading-8 font-semibold text-foreground">
-              Daily Care
+              Daily Routines
             </h2>
             <p className="text-sm leading-5 text-muted-foreground">
-              School-day meals, rest, and care routines
+              Consistent daily habits and tracking
             </p>
           </div>
           <div className="flex items-center gap-2">

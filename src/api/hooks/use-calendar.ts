@@ -2,6 +2,7 @@ import type { UseQueryOptions } from "@tanstack/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiException } from "@/api/client";
 import { calendarService } from "@/api/services";
+import { useProfileLens } from "@/hooks";
 import { parseLocalDate } from "@/lib/time-utils";
 import type {
   ApiResponse,
@@ -28,10 +29,19 @@ export function useCalendarEvents(
     "queryKey" | "queryFn"
   >,
 ) {
+  const { activeMemberId } = useProfileLens();
+
   return useQuery({
     queryKey: calendarKeys.eventList(params),
     queryFn: () => calendarService.getEvents(params),
     staleTime: 5 * 60 * 1000, // 5 minutes
+    select: (response) => {
+      if (!activeMemberId) return response;
+      return {
+        ...response,
+        data: response.data.filter((e) => e.memberId === activeMemberId),
+      };
+    },
     ...options,
   });
 }

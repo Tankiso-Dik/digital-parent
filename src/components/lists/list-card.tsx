@@ -21,7 +21,7 @@ const kindMeta: Record<
     className: "bg-emerald-100 text-emerald-700",
   },
   "to-do": {
-    label: "Reward",
+    label: "Shared list",
     icon: Trophy,
     className: "bg-sky-100 text-sky-700",
   },

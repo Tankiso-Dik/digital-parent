@@ -12,8 +12,8 @@ const tabs: Array<{ id: ModuleType | null; label: string; icon: LucideIcon }> =
   [
     { id: "calendar", label: "Schedule", icon: Calendar },
     { id: "chores", label: "Tasks", icon: CheckSquare },
-    { id: "lists", label: "Goals", icon: ListTodo },
-    { id: "meals", label: "Care", icon: HeartPulse },
+    { id: "lists", label: "Planning", icon: ListTodo },
+    { id: "meals", label: "Routines", icon: HeartPulse },
   ];
 
 export function MobileBottomNav() {

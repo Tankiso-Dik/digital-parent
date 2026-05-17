@@ -21,7 +21,7 @@ import { ListItemSheet } from "./list-item-sheet";
 
 const kindLabels = {
   grocery: "Supplies",
-  "to-do": "Reward ladder",
+  "to-do": "Shared list",
   general: "Goal checklist",
 } as const;
 
@@ -62,7 +62,7 @@ export function ListDetailView({
       <div className="flex-1 p-4">
         <Button type="button" variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
-          Back to Rewards
+          Back to Lists
         </Button>
         <p className="mt-6 text-sm text-muted-foreground">
           This list could not be loaded.
@@ -106,7 +106,7 @@ export function ListDetailView({
       <div className="mx-auto max-w-2xl space-y-4">
         <Button type="button" variant="ghost" onClick={onBack} className="px-0">
           <ArrowLeft className="h-4 w-4" />
-          Back to Rewards
+          Back to Lists
         </Button>
 
         <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
@@ -224,7 +224,7 @@ export function ListDetailView({
               No steps yet
             </h3>
             <p className="mx-auto mt-2 max-w-sm text-sm leading-5 text-muted-foreground">
-              Add the first step toward this reward or goal.
+              Add the first step toward this goal or item.
             </p>
           </div>
         ) : visibleItemCount === 0 ? (

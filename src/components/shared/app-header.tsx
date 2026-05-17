@@ -14,7 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useIsMobile } from "@/hooks";
+import { useIsMobile, usePermissions, useProfileLens } from "@/hooks";
 import { colorMap } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useAppStore, useCalendarStore } from "@/stores";
@@ -29,7 +29,8 @@ export function AppHeader() {
 
   // From app-store
   const openSidebar = useAppStore((state) => state.openSidebar);
-  const activeMemberId = useAppStore((state) => state.activeMemberId);
+  const { activeMemberId } = useProfileLens();
+  const { canEdit } = usePermissions();
   const setActiveMemberId = useAppStore((state) => state.setActiveMemberId);
 
   const activeMember = activeMemberId
@@ -194,7 +195,7 @@ export function AppHeader() {
         )}
 
         {/* Settings */}
-        {!activeMemberId && (
+        {canEdit && (
           <Button
             variant="ghost"
             size="icon"

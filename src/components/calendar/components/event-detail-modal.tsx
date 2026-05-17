@@ -21,12 +21,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toaster";
-import { useIsMobile } from "@/hooks";
+import { useIsMobile, usePermissions } from "@/hooks";
 import { formatRecurrenceLabel } from "@/lib/recurrence-utils";
 import type { CalendarEvent } from "@/lib/types";
 import { colorMap, getFamilyMember } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { useAppStore } from "@/stores";
 import { MobileEventDetail } from "./mobile-event-detail";
 
 interface EventDetailModalProps {
@@ -52,8 +51,7 @@ function EventDetailModal({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const familyMembers = useFamilyMembers();
 
-  const activeMemberId = useAppStore((state) => state.activeMemberId);
-  const isChildView = activeMemberId !== null;
+  const { canEdit } = usePermissions();
 
   // Reset confirmation state when modal closes or event changes
   useEffect(() => {
@@ -222,7 +220,7 @@ function EventDetailModal({
           )}
         </div>
 
-        {!isChildView && (
+        {canEdit && (
           <DialogFooter className="flex-col gap-3">
             {showDeleteConfirm ? (
               <>

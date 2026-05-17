@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useFamilyMembers, useFamilyName, useLogout } from "@/api";
 import { FamilySettingsModal, MemberProfileModal } from "@/components/settings";
 import { Button } from "@/components/ui/button";
+import { usePermissions } from "@/hooks";
 import { colorMap } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/stores";
@@ -10,8 +11,7 @@ import { useAppStore } from "@/stores";
 export function SidebarMenu() {
   const isOpen = useAppStore((state) => state.isSidebarOpen);
   const closeSidebar = useAppStore((state) => state.closeSidebar);
-  const activeMemberId = useAppStore((state) => state.activeMemberId);
-  const isChildView = activeMemberId !== null;
+  const { canEdit } = usePermissions();
 
   // From family-store
   const familyName = useFamilyName();
@@ -37,7 +37,7 @@ export function SidebarMenu() {
   if (!isOpen) return null;
 
   const handleOpenMemberProfile = (memberId: string) => {
-    if (isChildView) return;
+    if (!canEdit) return;
     setSelectedMemberId(memberId);
   };
 
@@ -46,11 +46,9 @@ export function SidebarMenu() {
   };
 
   const menuItems = [
-    ...(isChildView
-      ? []
-      : [
-          { icon: Users, label: "Family Settings", action: handleOpenSettings },
-        ]),
+    ...(canEdit
+      ? [{ icon: Users, label: "Family Settings", action: handleOpenSettings }]
+      : []),
     { icon: LogOut, label: "Sign Out", action: logout },
   ];
 
@@ -90,10 +88,10 @@ export function SidebarMenu() {
                   <button
                     key={member.id}
                     onClick={() => handleOpenMemberProfile(member.id)}
-                    disabled={isChildView}
+                    disabled={!canEdit}
                     className={cn(
                       "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
-                      !isChildView
+                      canEdit
                         ? "hover:bg-muted cursor-pointer"
                         : "cursor-default opacity-90",
                     )}

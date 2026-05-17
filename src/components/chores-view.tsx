@@ -10,9 +10,9 @@ import {
 import { ChoreFormSheet } from "@/components/chores/chore-form-sheet";
 import { ChoreLane } from "@/components/chores/chore-lane";
 import { Button } from "@/components/ui/button";
+import { usePermissions, useProfileLens } from "@/hooks";
 import { formatLocalDate } from "@/lib/time-utils";
 import type { Chore, FamilyMember } from "@/lib/types";
-import { useAppStore } from "@/stores";
 
 interface ChoreLaneData {
   member: FamilyMember;
@@ -34,8 +34,8 @@ export function ChoresView() {
   const updateChore = useUpdateChore();
   const deleteChore = useDeleteChore();
 
-  const activeMemberId = useAppStore((state) => state.activeMemberId);
-  const isChildView = activeMemberId !== null;
+  const { activeMemberId } = useProfileLens();
+  const { canCreate } = usePermissions();
 
   const chores = useMemo(() => data?.data ?? [], [data]);
   const today = formatLocalDate(new Date());
@@ -60,7 +60,7 @@ export function ChoresView() {
             <h1 className="text-[24px] leading-8 font-semibold text-foreground">
               Responsibilities
             </h1>
-            {!isChildView && (
+            {canCreate && (
               <Button
                 type="button"
                 aria-label="Add chore"
@@ -93,7 +93,7 @@ export function ChoresView() {
               <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-muted-foreground">
                 Add the first responsibility to start building daily rhythm.
               </p>
-              {!isChildView && (
+              {canCreate && (
                 <Button
                   type="button"
                   className="mt-5"

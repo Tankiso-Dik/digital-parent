@@ -25,7 +25,6 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
         return {
           email: usernameToAuthEmail(username),
           name: username,
-          sandboxPassword: String(params.password ?? ""),
         };
       },
       validatePasswordRequirements(password: string) {
@@ -78,15 +77,10 @@ export const listSandboxUsers = query({
   handler: async (ctx) => {
     // Only fetch for dev/sandbox purposes
     const users = await ctx.db.query("users").collect();
-    return users.map((u) => {
-      const doc = u as unknown as Record<string, any>;
-      return {
-        id: u._id,
-        name: u.name,
-        email: u.email,
-        sandboxPassword:
-          doc.sandboxPassword || "— (Create new or change password to see)",
-      };
-    });
+    return users.map((u) => ({
+      id: u._id,
+      name: u.name,
+      email: u.email,
+    }));
   },
 });

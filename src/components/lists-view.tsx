@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useListPreferences, useLists } from "@/api";
+import { useAppStore } from "@/stores";
 import { ListCard } from "./lists/list-card";
 import { ListCreateSheet } from "./lists/list-create-sheet";
 import { ListDetailView } from "./lists/list-detail-view";
@@ -11,6 +12,7 @@ export function ListsView() {
   const [createOpen, setCreateOpen] = useState(false);
   const lists = useLists();
   const preferences = useListPreferences();
+  const isChildView = useAppStore((state) => state.activeMemberId !== null);
 
   if (selectedListId !== null) {
     return (
@@ -47,10 +49,12 @@ export function ListsView() {
             <h2 className="text-[24px] font-semibold leading-8 text-foreground">
               Rewards & Goals
             </h2>
-            <Button type="button" onClick={() => setCreateOpen(true)}>
-              <Plus className="h-4 w-4" />
-              New Goal
-            </Button>
+            {!isChildView && (
+              <Button type="button" onClick={() => setCreateOpen(true)}>
+                <Plus className="h-4 w-4" />
+                New Goal
+              </Button>
+            )}
           </div>
 
           <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
@@ -89,10 +93,12 @@ export function ListsView() {
           <h2 className="text-[24px] font-semibold leading-8 text-foreground">
             Rewards & Goals
           </h2>
-          <Button type="button" onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4" />
-            New Goal
-          </Button>
+          {!isChildView && (
+            <Button type="button" onClick={() => setCreateOpen(true)}>
+              <Plus className="h-4 w-4" />
+              New Goal
+            </Button>
+          )}
         </div>
 
         {summaries.length === 0 ? (
@@ -104,14 +110,16 @@ export function ListsView() {
               Create the first reward, school target, or routine goal for the
               kids to work toward.
             </p>
-            <Button
-              type="button"
-              className="mt-4"
-              onClick={() => setCreateOpen(true)}
-            >
-              <Plus className="h-4 w-4" />
-              Create first goal
-            </Button>
+            {!isChildView && (
+              <Button
+                type="button"
+                className="mt-4"
+                onClick={() => setCreateOpen(true)}
+              >
+                <Plus className="h-4 w-4" />
+                Create first goal
+              </Button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">

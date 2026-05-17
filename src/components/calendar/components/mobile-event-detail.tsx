@@ -18,6 +18,7 @@ import { formatRecurrenceLabel } from "@/lib/recurrence-utils";
 import type { CalendarEvent } from "@/lib/types";
 import { colorMap, type FamilyColor } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useAppStore } from "@/stores";
 
 interface MobileEventDetailProps {
   event: CalendarEvent;
@@ -41,6 +42,7 @@ function MobileEventDetail({
   deleteError,
 }: MobileEventDetailProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const isChildView = useAppStore((state) => state.activeMemberId !== null);
 
   // Reset confirmation state when closed
   useEffect(() => {
@@ -123,26 +125,30 @@ function MobileEventDetail({
           </button>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleEditClick}
-              disabled={isDeleting}
-              className="h-9 px-3 text-white hover:bg-white/20 hover:text-white"
-            >
-              <Pencil className="mr-1.5 h-4 w-4" />
-              Edit
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleDeleteAttempt}
-              disabled={isDeleting}
-              className="h-9 px-3 text-white hover:bg-white/20 hover:text-white"
-            >
-              <Trash2 className="mr-1.5 h-4 w-4" />
-              Delete
-            </Button>
+            {!isChildView && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleEditClick}
+                  disabled={isDeleting}
+                  className="h-9 px-3 text-white hover:bg-white/20 hover:text-white"
+                >
+                  <Pencil className="mr-1.5 h-4 w-4" />
+                  Edit
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDeleteAttempt}
+                  disabled={isDeleting}
+                  className="h-9 px-3 text-white hover:bg-white/20 hover:text-white"
+                >
+                  <Trash2 className="mr-1.5 h-4 w-4" />
+                  Delete
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -243,7 +249,7 @@ function MobileEventDetail({
       </div>
 
       {/* Delete confirmation footer */}
-      {showDeleteConfirm && (
+      {showDeleteConfirm && !isChildView && (
         <div className="space-y-3 border-t border-border bg-background px-4 pb-safe pt-4">
           <p className="text-center text-sm text-muted-foreground">
             Are you sure you want to delete this event?

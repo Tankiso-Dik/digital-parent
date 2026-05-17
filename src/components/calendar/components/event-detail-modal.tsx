@@ -26,6 +26,7 @@ import { formatRecurrenceLabel } from "@/lib/recurrence-utils";
 import type { CalendarEvent } from "@/lib/types";
 import { colorMap, getFamilyMember } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useAppStore } from "@/stores";
 import { MobileEventDetail } from "./mobile-event-detail";
 
 interface EventDetailModalProps {
@@ -50,6 +51,9 @@ function EventDetailModal({
   const isMobile = useIsMobile();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const familyMembers = useFamilyMembers();
+
+  const activeMemberId = useAppStore((state) => state.activeMemberId);
+  const isChildView = activeMemberId !== null;
 
   // Reset confirmation state when modal closes or event changes
   useEffect(() => {
@@ -218,61 +222,63 @@ function EventDetailModal({
           )}
         </div>
 
-        <DialogFooter className="flex-col gap-3">
-          {showDeleteConfirm ? (
-            <>
-              <p className="text-sm text-muted-foreground text-center w-full">
-                Are you sure you want to delete this event?
-              </p>
+        {!isChildView && (
+          <DialogFooter className="flex-col gap-3">
+            {showDeleteConfirm ? (
+              <>
+                <p className="text-sm text-muted-foreground text-center w-full">
+                  Are you sure you want to delete this event?
+                </p>
+                <div className="flex gap-3 w-full">
+                  <Button
+                    variant="outline"
+                    onClick={handleCancelDelete}
+                    disabled={isDeleting}
+                    className="flex-1 min-h-[48px]"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleConfirmDelete}
+                    disabled={isDeleting}
+                    className="flex-1 min-h-[48px]"
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      "Delete Event"
+                    )}
+                  </Button>
+                </div>
+              </>
+            ) : (
               <div className="flex gap-3 w-full">
                 <Button
                   variant="outline"
-                  onClick={handleCancelDelete}
+                  onClick={handleEditClick}
                   disabled={isDeleting}
                   className="flex-1 min-h-[48px]"
                 >
-                  Cancel
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Edit
                 </Button>
                 <Button
                   variant="destructive"
-                  onClick={handleConfirmDelete}
+                  onClick={handleDeleteAttempt}
                   disabled={isDeleting}
                   className="flex-1 min-h-[48px]"
                 >
-                  {isDeleting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Deleting...
-                    </>
-                  ) : (
-                    "Delete Event"
-                  )}
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
                 </Button>
               </div>
-            </>
-          ) : (
-            <div className="flex gap-3 w-full">
-              <Button
-                variant="outline"
-                onClick={handleEditClick}
-                disabled={isDeleting}
-                className="flex-1 min-h-[48px]"
-              >
-                <Pencil className="w-4 h-4 mr-2" />
-                Edit
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDeleteAttempt}
-                disabled={isDeleting}
-                className="flex-1 min-h-[48px]"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete
-              </Button>
-            </div>
-          )}
-        </DialogFooter>
+            )}
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

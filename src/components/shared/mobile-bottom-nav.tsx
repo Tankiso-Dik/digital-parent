@@ -10,9 +10,9 @@ import { type ModuleType, useAppStore } from "@/stores";
 
 const tabs: Array<{ id: ModuleType | null; label: string; icon: LucideIcon }> =
   [
-    { id: "calendar", label: "School", icon: Calendar },
+    { id: "calendar", label: "Schedule", icon: Calendar },
     { id: "chores", label: "Tasks", icon: CheckSquare },
-    { id: "lists", label: "Rewards", icon: ListTodo },
+    { id: "lists", label: "Goals", icon: ListTodo },
     { id: "meals", label: "Care", icon: HeartPulse },
   ];
 

@@ -83,6 +83,8 @@ export function CalendarModule() {
   const { currentDate, calendarView, filter, isAddEventModalOpen } =
     useCalendarState();
   const isViewingToday = useIsViewingToday();
+  const activeMemberId = useAppStore((state) => state.activeMemberId);
+  const isChildView = activeMemberId !== null;
 
   // Event detail modal state
   const {
@@ -202,11 +204,14 @@ export function CalendarModule() {
   const events = useMemo(() => {
     const rawEvents = eventsResponse?.data ?? [];
     return rawEvents.filter((event) => {
+      if (activeMemberId && event.memberId !== activeMemberId) {
+        return false;
+      }
       const memberMatches = filter.selectedMembers.includes(event.memberId);
       const allDayMatches = filter.showAllDayEvents || !event.isAllDay;
       return memberMatches && allDayMatches;
     });
-  }, [eventsResponse, filter]);
+  }, [eventsResponse, filter, activeMemberId]);
 
   const handleEventClick = (event: CalendarEvent) => {
     deleteEvent.reset();
@@ -469,7 +474,7 @@ export function CalendarModule() {
       {renderCalendarView()}
 
       {/* FAB */}
-      <AddEventButton onClick={openAddEventModal} />
+      {!isChildView && <AddEventButton onClick={openAddEventModal} />}
 
       {/* Add Event Modal */}
       <EventFormModal

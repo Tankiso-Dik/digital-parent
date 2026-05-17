@@ -6,9 +6,9 @@ import { type ModuleType, useAppStore } from "@/stores";
 export type TabType = ModuleType;
 
 const tabs = [
-  { id: "calendar" as ModuleType, label: "School", icon: Calendar },
+  { id: "calendar" as ModuleType, label: "Schedule", icon: Calendar },
   { id: "chores" as ModuleType, label: "Tasks", icon: CheckSquare },
-  { id: "lists" as ModuleType, label: "Rewards", icon: ListTodo },
+  { id: "lists" as ModuleType, label: "Goals", icon: ListTodo },
   { id: "meals" as ModuleType, label: "Care", icon: HeartPulse },
 ];
 

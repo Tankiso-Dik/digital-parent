@@ -10,6 +10,8 @@ import { useAppStore } from "@/stores";
 export function SidebarMenu() {
   const isOpen = useAppStore((state) => state.isSidebarOpen);
   const closeSidebar = useAppStore((state) => state.closeSidebar);
+  const activeMemberId = useAppStore((state) => state.activeMemberId);
+  const isChildView = activeMemberId !== null;
 
   // From family-store
   const familyName = useFamilyName();
@@ -35,6 +37,7 @@ export function SidebarMenu() {
   if (!isOpen) return null;
 
   const handleOpenMemberProfile = (memberId: string) => {
+    if (isChildView) return;
     setSelectedMemberId(memberId);
   };
 
@@ -43,7 +46,11 @@ export function SidebarMenu() {
   };
 
   const menuItems = [
-    { icon: Users, label: "Family Settings", action: handleOpenSettings },
+    ...(isChildView
+      ? []
+      : [
+          { icon: Users, label: "Family Settings", action: handleOpenSettings },
+        ]),
     { icon: LogOut, label: "Sign Out", action: logout },
   ];
 
@@ -83,7 +90,13 @@ export function SidebarMenu() {
                   <button
                     key={member.id}
                     onClick={() => handleOpenMemberProfile(member.id)}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors"
+                    disabled={isChildView}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
+                      !isChildView
+                        ? "hover:bg-muted cursor-pointer"
+                        : "cursor-default opacity-90",
+                    )}
                   >
                     {member.avatarUrl ? (
                       <img

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { parseLocalDate } from "@/lib/time-utils";
 import type { Chore } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useAppStore } from "@/stores";
 
 interface ChoreRowProps {
   chore: Chore;
@@ -35,6 +36,8 @@ export function ChoreRow({
   onDelete,
 }: ChoreRowProps) {
   const dueLabel = getDueLabel(chore, today);
+  const activeMemberId = useAppStore((state) => state.activeMemberId);
+  const isChildView = activeMemberId !== null;
 
   return (
     <div
@@ -89,16 +92,18 @@ export function ChoreRow({
         )}
       </div>
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        aria-label={`Delete ${chore.title}`}
-        onClick={onDelete}
-        className="text-muted-foreground hover:text-destructive"
-      >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+      {!isChildView && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label={`Delete ${chore.title}`}
+          onClick={onDelete}
+          className="text-muted-foreground hover:text-destructive"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 }

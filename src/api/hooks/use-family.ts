@@ -6,6 +6,7 @@ import { familyService } from "@/api/services";
 import { FAMILY_STORAGE_KEY } from "@/lib/constants";
 import type {
   AddMemberRequest,
+  CreateFamilyRequest,
   FamilyApiResponse,
   FamilyColor,
   FamilyData,
@@ -246,6 +247,48 @@ export function useUpdateFamily(callbacks?: UpdateFamilyCallbacks) {
       // Write-through to localStorage
       writeFamilyToStorage(response.data);
       callbacks?.onSuccess?.(response);
+    },
+  });
+}
+
+interface CreateFamilyCallbacks {
+  onSuccess?: (data: FamilyMutationResponse) => void;
+  onError?: (error: ApiException) => void;
+}
+
+/**
+ * Create a new family (typically called after auth registration).
+ */
+export function useCreateFamily(callbacks?: CreateFamilyCallbacks) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: CreateFamilyRequest) => {
+      // Direct call via convex with the current auth context in the React tree provider
+      if (import.meta.env.MODE !== "test") {
+        const { convex } = await import("@/lib/convex");
+        const { api } = await import("../../../convex/_generated/api");
+        const response = await convex.mutation(
+          api.family.createFamily,
+          request,
+        );
+        return { data: response.data as FamilyData };
+      }
+
+      const { httpClient } = await import("@/api/client");
+      return httpClient.post<FamilyMutationResponse>("/family", request);
+    },
+    onSuccess: (response) => {
+      // Update with server response
+      queryClient.setQueryData<FamilyApiResponse>(familyKeys.family(), {
+        data: response.data,
+      });
+      // Write-through to localStorage
+      writeFamilyToStorage(response.data);
+      callbacks?.onSuccess?.(response);
+    },
+    onError: (error: ApiException) => {
+      callbacks?.onError?.(error);
     },
   });
 }

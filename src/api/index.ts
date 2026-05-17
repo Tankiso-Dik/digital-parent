@@ -28,6 +28,7 @@ export {
   useClearCompleted,
   useCreateChore,
   useCreateEvent,
+  useCreateFamily,
   useCreateList,
   useCreateListItem,
   useDeleteChore,

@@ -7,7 +7,7 @@ export default defineSchema({
 
   families: defineTable({
     name: v.string(),
-    owner: v.string(),
+    owner: v.id("users"),
   }).index("by_owner", ["owner"]),
 
   familyMembers: defineTable({
@@ -16,6 +16,7 @@ export default defineSchema({
     color: v.string(),
     avatarUrl: v.optional(v.string()),
     email: v.optional(v.string()),
+    role: v.optional(v.string()),
   }).index("by_family", ["familyId"]),
 
   events: defineTable({

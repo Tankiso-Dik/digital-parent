@@ -6,12 +6,9 @@ import { authService } from "@/api/services";
 import { AUTH_TOKEN_STORAGE_KEY, FAMILY_STORAGE_KEY } from "@/lib/constants";
 import { convex } from "@/lib/convex";
 import type {
-  FamilyApiResponse,
-  FamilyData,
   LoginRequest,
   LoginResponse,
   RegisterRequest,
-  RegisterResponse,
   UsernameCheckResponse,
 } from "@/lib/types";
 import { api } from "../../../convex/_generated/api";
@@ -68,32 +65,8 @@ export function clearStoredToken(): void {
   }
 }
 
-/**
- * Write family data to localStorage (Zustand persist format).
- */
-function writeFamilyToStorage(family: FamilyData): void {
-  try {
-    const stored = {
-      state: {
-        family,
-        _hasHydrated: true,
-      },
-      version: 0,
-    };
-    localStorage.setItem(FAMILY_STORAGE_KEY, JSON.stringify(stored));
-  } catch (error) {
-    if (import.meta.env.DEV) {
-      console.error("Failed to write family to localStorage:", error);
-    }
-  }
-}
-
 function usernameToAuthEmail(username: string) {
   return `${username.trim().toLowerCase()}@digital-parent.local`;
-}
-
-function asFamilyData(family: FamilyData): FamilyData {
-  return family;
 }
 
 function mapConvexError(error: unknown): ApiException {
@@ -104,16 +77,9 @@ function mapConvexError(error: unknown): ApiException {
   const message = error instanceof Error ? error.message : String(error);
   const lowerMessage = message.toLowerCase();
 
-  if (lowerMessage.includes("invalid credentials")) {
-    return new ApiExceptionClass(
-      {
-        code: ApiErrorCode.UNAUTHORIZED,
-        message: "Invalid username or password",
-        status: 401,
-      },
-      error,
-    );
-  }
+  // Sort order is critical here.
+  // "Invalid username" is thrown by normalizeUsername -> VALIDATION_ERROR
+  // "Invalid credentials" is thrown by password auth -> UNAUTHORIZED
 
   if (lowerMessage.includes("already") || lowerMessage.includes("duplicate")) {
     return new ApiExceptionClass(
@@ -126,11 +92,27 @@ function mapConvexError(error: unknown): ApiException {
     );
   }
 
+  if (
+    lowerMessage.includes("invalid credentials") ||
+    lowerMessage.includes("invalid password") ||
+    lowerMessage.includes("invalid email") ||
+    lowerMessage.includes("wrong")
+  ) {
+    return new ApiExceptionClass(
+      {
+        code: ApiErrorCode.UNAUTHORIZED,
+        message: "Invalid username or password",
+        status: 401,
+      },
+      error,
+    );
+  }
+
   if (lowerMessage.includes("invalid")) {
     return new ApiExceptionClass(
       {
         code: ApiErrorCode.VALIDATION_ERROR,
-        message: "Invalid credentials",
+        message: message, // Preserve the original validation error message (e.g. "Invalid username")
         status: 422,
       },
       error,
@@ -157,7 +139,7 @@ interface LoginCallbacks {
 }
 
 /**
- * Login mutation that signs in with Convex Auth and updates family cache.
+ * Login mutation that signs in with Convex Auth and updates cache state.
  */
 export function useLogin(callbacks?: LoginCallbacks) {
   const authActions = useAuthActions() as
@@ -174,20 +156,17 @@ export function useLogin(callbacks?: LoginCallbacks) {
       try {
         await authActions.signIn("password", {
           flow: "signIn",
+          // The Password provider's "profile" hook expects 'username' even during signIn if account is missing
           username: request.username,
           email: usernameToAuthEmail(request.username),
           password: request.password,
         });
 
-        const family = await convex.query(api.family.getFamily, {});
-        if (!family.data) {
-          throw new Error("No family found");
-        }
-
         return {
           data: {
             token: "",
-            family: asFamilyData(family.data as FamilyData),
+            // Provide dummy data so React Query triggers cache update, real data loaded via useFamily refetch
+            family: { id: "", name: "", members: [], createdAt: "" },
           },
         };
       } catch (error) {
@@ -195,14 +174,8 @@ export function useLogin(callbacks?: LoginCallbacks) {
       }
     },
     onSuccess: (response) => {
-      // Update family query cache
-      queryClient.setQueryData<FamilyApiResponse>(familyKeys.family(), {
-        data: response.data.family,
-      });
-
-      // Write family to localStorage for hydration
-      writeFamilyToStorage(response.data.family);
-
+      // Login succeeded, invalidate family query so it refetches with the actual auth token
+      queryClient.invalidateQueries({ queryKey: familyKeys.family() });
       callbacks?.onSuccess?.(response);
     },
     onError: (error: ApiException) => {
@@ -216,58 +189,44 @@ export function useLogin(callbacks?: LoginCallbacks) {
 // ============================================================================
 
 interface RegisterCallbacks {
-  onSuccess?: (data: RegisterResponse) => void;
+  // Pass string (token) since the real family data will be created via useCreateFamily later
+  onSuccess?: (token: string) => void;
   onError?: (error: ApiException) => void;
 }
 
 /**
- * Register mutation that creates a Convex Auth account, family, and cache state.
+ * Register mutation that creates a Convex Auth account.
+ * Note: Family creation is pushed down to useCreateFamily in onboarding flow.
  */
 export function useRegister(callbacks?: RegisterCallbacks) {
   const authActions = useAuthActions() as
     | ReturnType<typeof useAuthActions>
     | undefined;
-  const queryClient = useQueryClient();
 
-  return useMutation<RegisterResponse, ApiException, RegisterRequest>({
+  return useMutation<string, ApiException, RegisterRequest>({
     mutationFn: async (request: RegisterRequest) => {
       if (!authActions) {
-        return authService.register(request);
+        const response = await authService.register(request);
+        return response.data.token;
       }
 
       try {
         await authActions.signIn("password", {
           flow: "signUp",
+          // The Convex built-in profile extractor will get this
           username: request.username,
           email: usernameToAuthEmail(request.username),
           password: request.password,
         });
 
-        const family = await convex.mutation(api.family.createFamily, {
-          name: request.familyName,
-          members: request.members,
-        });
-
-        return {
-          data: {
-            token: "",
-            family: asFamilyData(family.data as FamilyData),
-          },
-        };
+        return "";
       } catch (error) {
         throw mapConvexError(error);
       }
     },
-    onSuccess: (response) => {
-      // Update family query cache
-      queryClient.setQueryData<FamilyApiResponse>(familyKeys.family(), {
-        data: response.data.family,
-      });
-
-      // Write family to localStorage for hydration
-      writeFamilyToStorage(response.data.family);
-
-      callbacks?.onSuccess?.(response);
+    onSuccess: (token) => {
+      // No longer initializing cache here; wait for useCreateFamily which will populate the cache.
+      callbacks?.onSuccess?.(token);
     },
     onError: (error: ApiException) => {
       callbacks?.onError?.(error);

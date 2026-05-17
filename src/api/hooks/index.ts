@@ -33,6 +33,7 @@ export {
   readFamilyFromStorage,
   syncFamilyFromStorage,
   useAddMember,
+  useCreateFamily,
   useDeleteFamily,
   useFamily,
   useFamilyData,

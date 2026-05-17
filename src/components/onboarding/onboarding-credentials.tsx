@@ -35,6 +35,7 @@ export function OnboardingCredentials({
     formState: { errors },
   } = useForm<CredentialsFormData>({
     resolver: zodResolver(credentialsFormSchema),
+    mode: "onChange",
   });
 
   const username = watch("username");

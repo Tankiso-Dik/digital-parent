@@ -51,6 +51,11 @@ export const viewer = query({
 export const checkUsername = query({
   args: { username: v.string() },
   handler: async (ctx, args) => {
+    // Require at least 3 characters before checking (matches client-side guard)
+    if (!args.username || args.username.trim().length < 3) {
+      return { data: { available: false } };
+    }
+
     let email: string;
     try {
       email = usernameToAuthEmail(args.username);
@@ -64,5 +69,18 @@ export const checkUsername = query({
       .unique();
 
     return { data: { available: existing === null } };
+  },
+});
+
+export const listSandboxUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    // Only fetch for dev/sandbox purposes
+    const users = await ctx.db.query("users").collect();
+    return users.map((u) => ({
+      id: u._id,
+      name: u.name,
+      email: u.email,
+    }));
   },
 });

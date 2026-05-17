@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { type LoginFormData, loginFormSchema } from "@/lib/validations/auth";
 import { useAuthStore } from "@/stores";
+import { SandboxUsersModal } from "./sandbox-users-modal";
 
 interface LoginFormProps {
   onSwitchToOnboarding: () => void;
@@ -34,6 +35,8 @@ export function LoginForm({ onSwitchToOnboarding }: LoginFormProps) {
       onError: (error) => {
         if (error.code === "UNAUTHORIZED") {
           setError("root", { message: "Invalid username or password" });
+        } else if (error.code === "VALIDATION_ERROR") {
+          setError("root", { message: error.message || "Invalid input" });
         } else {
           setError("root", { message: "An error occurred. Please try again." });
         }
@@ -111,6 +114,8 @@ export function LoginForm({ onSwitchToOnboarding }: LoginFormProps) {
           </div>
         </form>
       </div>
+
+      <SandboxUsersModal />
     </div>
   );
 }

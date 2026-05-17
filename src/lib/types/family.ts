@@ -114,6 +114,14 @@ export const familyColors: FamilyColor[] = [
 // ============================================================================
 
 /**
+ * Request to create a new family.
+ */
+export interface CreateFamilyRequest {
+  name: string;
+  members: Array<Omit<FamilyMember, "id">>;
+}
+
+/**
  * Request to update family properties.
  */
 export interface UpdateFamilyRequest {

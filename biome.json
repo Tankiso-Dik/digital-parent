@@ -64,6 +64,7 @@
       "**/*.json",
       "!!dist",
       "!!node_modules",
+      "!!convex/_generated",
       "!!.husky",
       "!!coverage",
       "!!test-results"

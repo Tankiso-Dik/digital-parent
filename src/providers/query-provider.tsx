@@ -1,6 +1,9 @@
+import { ConvexAuthProvider, useConvexAuth } from "@convex-dev/auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { lazy, type ReactNode, Suspense } from "react";
+import { lazy, type ReactNode, Suspense, useEffect } from "react";
 import { ApiException } from "@/api/client";
+import { convex } from "@/lib/convex";
+import { useAuthStore } from "@/stores";
 
 // Lazy load DevTools - only loaded in dev mode
 const ReactQueryDevtools = lazy(() =>
@@ -36,15 +39,32 @@ interface QueryProviderProps {
   children: ReactNode;
 }
 
+function ConvexAuthStoreBridge({ children }: QueryProviderProps) {
+  const { isLoading, isAuthenticated } = useConvexAuth();
+  const setHasHydrated = useAuthStore((state) => state.setHasHydrated);
+  const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
+
+  useEffect(() => {
+    setHasHydrated(!isLoading);
+    setAuthenticated(isAuthenticated);
+  }, [isLoading, isAuthenticated, setHasHydrated, setAuthenticated]);
+
+  return <>{children}</>;
+}
+
 export function QueryProvider({ children }: QueryProviderProps) {
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-      {import.meta.env.DEV && !import.meta.env.VITE_E2E && (
-        <Suspense fallback={null}>
-          <ReactQueryDevtools initialIsOpen={false} />
-        </Suspense>
-      )}
-    </QueryClientProvider>
+    <ConvexAuthProvider client={convex}>
+      <ConvexAuthStoreBridge>
+        <QueryClientProvider client={queryClient}>
+          {children}
+          {import.meta.env.DEV && !import.meta.env.VITE_E2E && (
+            <Suspense fallback={null}>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </Suspense>
+          )}
+        </QueryClientProvider>
+      </ConvexAuthStoreBridge>
+    </ConvexAuthProvider>
   );
 }

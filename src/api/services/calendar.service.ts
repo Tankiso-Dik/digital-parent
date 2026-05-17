@@ -1,5 +1,5 @@
 import { httpClient } from "@/api/client";
-import { demoApi, isDemoModeActive } from "@/lib/demo-data";
+import { convex } from "@/lib/convex";
 import { parseLocalDate } from "@/lib/time-utils";
 import type {
   ApiResponse,
@@ -9,6 +9,7 @@ import type {
   GetEventsParams,
   UpdateEventRequest,
 } from "@/lib/types";
+import { api } from "../../../convex/_generated/api";
 
 /**
  * Convert a wire-format event response (date as string) to a domain CalendarEvent (date as Date).
@@ -34,12 +35,32 @@ function mapEventsResponse(
   return { ...response, data: response.data.map(toCalendarEvent) };
 }
 
+function asEventResponse(
+  response: unknown,
+): ApiResponse<CalendarEventResponse> {
+  return response as ApiResponse<CalendarEventResponse>;
+}
+
+function asEventsResponse(
+  response: unknown,
+): ApiResponse<CalendarEventResponse[]> {
+  return response as ApiResponse<CalendarEventResponse[]>;
+}
+
 export const calendarService = {
   async getEvents(
     params: GetEventsParams,
   ): Promise<ApiResponse<CalendarEvent[]>> {
-    if (isDemoModeActive()) {
-      return mapEventsResponse(demoApi.getEvents());
+    if (import.meta.env.MODE !== "test") {
+      return mapEventsResponse(
+        asEventsResponse(
+          await convex.query(api.events.getEvents, {
+            startDate: params.startDate,
+            endDate: params.endDate,
+            memberId: params.memberId as never,
+          }),
+        ),
+      );
     }
 
     return mapEventsResponse(
@@ -53,8 +74,12 @@ export const calendarService = {
   },
 
   async getEventById(id: string): Promise<ApiResponse<CalendarEvent>> {
-    if (isDemoModeActive()) {
-      return mapEventResponse(demoApi.getEventById(id));
+    if (import.meta.env.MODE !== "test") {
+      return mapEventResponse(
+        asEventResponse(
+          await convex.query(api.events.getEventById, { id: id as never }),
+        ),
+      );
     }
 
     return mapEventResponse(
@@ -67,8 +92,23 @@ export const calendarService = {
   async createEvent(
     request: CreateEventRequest,
   ): Promise<ApiResponse<CalendarEvent>> {
-    if (isDemoModeActive()) {
-      return mapEventResponse(demoApi.createEvent(request));
+    if (import.meta.env.MODE !== "test") {
+      return mapEventResponse(
+        asEventResponse(
+          await convex.mutation(api.events.createEvent, {
+            title: request.title,
+            date: request.date,
+            startTime: request.startTime,
+            endTime: request.endTime,
+            endDate: request.endDate ?? null,
+            memberId: request.memberId as never,
+            isAllDay: request.isAllDay ?? false,
+            location: request.location ?? null,
+            recurrenceRule: request.recurrenceRule ?? null,
+            description: request.description ?? null,
+          }),
+        ),
+      );
     }
 
     return mapEventResponse(
@@ -83,8 +123,24 @@ export const calendarService = {
     id: string,
     request: UpdateEventRequest,
   ): Promise<ApiResponse<CalendarEvent>> {
-    if (isDemoModeActive()) {
-      return mapEventResponse(demoApi.updateEvent(id, request));
+    if (import.meta.env.MODE !== "test") {
+      return mapEventResponse(
+        asEventResponse(
+          await convex.mutation(api.events.updateEvent, {
+            id: id as never,
+            title: request.title,
+            date: request.date,
+            startTime: request.startTime,
+            endTime: request.endTime,
+            endDate: request.endDate ?? null,
+            memberId: request.memberId as never,
+            isAllDay: request.isAllDay ?? false,
+            location: request.location ?? null,
+            recurrenceRule: request.recurrenceRule ?? null,
+            description: request.description ?? null,
+          }),
+        ),
+      );
     }
 
     return mapEventResponse(
@@ -96,8 +152,8 @@ export const calendarService = {
   },
 
   async deleteEvent(id: string): Promise<void> {
-    if (isDemoModeActive()) {
-      demoApi.deleteEvent(id);
+    if (import.meta.env.MODE !== "test") {
+      await convex.mutation(api.events.deleteEvent, { id: id as never });
       return;
     }
 
@@ -109,8 +165,23 @@ export const calendarService = {
     date: string,
     request: UpdateEventRequest,
   ): Promise<ApiResponse<CalendarEvent>> {
-    if (isDemoModeActive()) {
-      return mapEventResponse(demoApi.updateEvent(parentId, request));
+    if (import.meta.env.MODE !== "test") {
+      return mapEventResponse(
+        asEventResponse(
+          await convex.mutation(api.events.updateInstance, {
+            parentId: parentId as never,
+            instanceDate: date,
+            title: request.title,
+            date: request.date,
+            startTime: request.startTime,
+            endTime: request.endTime,
+            memberId: request.memberId as never,
+            isAllDay: request.isAllDay ?? false,
+            location: request.location ?? null,
+            description: request.description ?? null,
+          }),
+        ),
+      );
     }
 
     return mapEventResponse(
@@ -122,8 +193,11 @@ export const calendarService = {
   },
 
   async deleteInstance(parentId: string, date: string): Promise<void> {
-    if (isDemoModeActive()) {
-      demoApi.deleteEvent(parentId);
+    if (import.meta.env.MODE !== "test") {
+      await convex.mutation(api.events.deleteInstance, {
+        parentId: parentId as never,
+        date,
+      });
       return;
     }
 

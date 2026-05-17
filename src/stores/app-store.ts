@@ -1,12 +1,6 @@
 import { create } from "zustand";
 
-export type ModuleType =
-  | "habits"
-  | "calendar"
-  | "lists"
-  | "chores"
-  | "meals"
-  | "photos";
+export type ModuleType = "calendar" | "lists" | "chores" | "meals";
 
 interface AppState {
   // State
@@ -21,8 +15,8 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>((set) => ({
-  // Initial state - Digital Habits is the parenting command center.
-  activeModule: "habits",
+  // Initial state - Calendar is the primary family planning surface.
+  activeModule: "calendar",
   isSidebarOpen: false,
 
   // Actions

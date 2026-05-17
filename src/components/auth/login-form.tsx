@@ -1,12 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { choreKeys, familyKeys, listsKeys, useLogin } from "@/api";
+import { useLogin } from "@/api";
 import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { seedDemoSession } from "@/lib/demo-data";
 import { type LoginFormData, loginFormSchema } from "@/lib/validations/auth";
 import { useAuthStore } from "@/stores";
 
@@ -16,9 +14,7 @@ interface LoginFormProps {
 
 export function LoginForm({ onSwitchToOnboarding }: LoginFormProps) {
   const login = useLogin();
-  const queryClient = useQueryClient();
   const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
-  const setDemoMode = useAuthStore((state) => state.setDemoMode);
 
   const {
     register,
@@ -34,7 +30,6 @@ export function LoginForm({ onSwitchToOnboarding }: LoginFormProps) {
       onSuccess: () => {
         // Update auth store to trigger re-render
         setAuthenticated(true);
-        setDemoMode(false);
       },
       onError: (error) => {
         if (error.code === "UNAUTHORIZED") {
@@ -44,27 +39,6 @@ export function LoginForm({ onSwitchToOnboarding }: LoginFormProps) {
         }
       },
     });
-  };
-
-  const handleDemoLogin = () => {
-    const demo = seedDemoSession();
-    queryClient.clear();
-    queryClient.setQueryData(familyKeys.family(), { data: demo.family });
-    queryClient.setQueryData(choreKeys.list(), { data: demo.chores });
-    queryClient.setQueryData(listsKeys.hub(), {
-      data: demo.lists.map((list) => ({
-        id: list.id,
-        name: list.name,
-        kind: list.kind,
-        totalItems: list.items.length,
-        completedItems: list.items.filter((item) => item.completed).length,
-      })),
-    });
-    queryClient.setQueryData(listsKeys.preferences(), {
-      data: demo.listPreferences,
-    });
-    setDemoMode(true);
-    setAuthenticated(true);
   };
 
   return (
@@ -78,29 +52,6 @@ export function LoginForm({ onSwitchToOnboarding }: LoginFormProps) {
             <p className="text-muted-foreground">
               Sign in to your parenting dashboard
             </p>
-          </div>
-
-          <div className="space-y-4">
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              className="w-full"
-              onClick={handleDemoLogin}
-            >
-              Try Demo - See it in action
-            </Button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  or
-                </span>
-              </div>
-            </div>
           </div>
 
           {errors.root && (

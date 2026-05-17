@@ -23,7 +23,7 @@ export function OnboardingWelcome({ onNext }: OnboardingWelcomeProps) {
           </h1>
           <p className="text-lg text-muted-foreground">
             Your all-in-one companion for managing the family's schedule, tasks,
-            meals, and daily life.
+            tasks, lists, and daily life.
           </p>
         </div>
 

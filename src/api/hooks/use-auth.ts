@@ -1,8 +1,10 @@
+import { useAuthActions } from "@convex-dev/auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiException } from "@/api/client";
+import { ApiErrorCode, ApiException as ApiExceptionClass } from "@/api/client";
 import { authService } from "@/api/services";
 import { AUTH_TOKEN_STORAGE_KEY, FAMILY_STORAGE_KEY } from "@/lib/constants";
-import { clearDemoSession } from "@/lib/demo-data";
+import { convex } from "@/lib/convex";
 import type {
   FamilyApiResponse,
   FamilyData,
@@ -12,6 +14,7 @@ import type {
   RegisterResponse,
   UsernameCheckResponse,
 } from "@/lib/types";
+import { api } from "../../../convex/_generated/api";
 import { familyKeys } from "./use-family";
 
 // ============================================================================
@@ -85,6 +88,65 @@ function writeFamilyToStorage(family: FamilyData): void {
   }
 }
 
+function usernameToAuthEmail(username: string) {
+  return `${username.trim().toLowerCase()}@digital-parent.local`;
+}
+
+function asFamilyData(family: FamilyData): FamilyData {
+  return family;
+}
+
+function mapConvexError(error: unknown): ApiException {
+  if (ApiExceptionClass.isApiException(error)) {
+    return error;
+  }
+
+  const message = error instanceof Error ? error.message : String(error);
+  const lowerMessage = message.toLowerCase();
+
+  if (lowerMessage.includes("invalid credentials")) {
+    return new ApiExceptionClass(
+      {
+        code: ApiErrorCode.UNAUTHORIZED,
+        message: "Invalid username or password",
+        status: 401,
+      },
+      error,
+    );
+  }
+
+  if (lowerMessage.includes("already") || lowerMessage.includes("duplicate")) {
+    return new ApiExceptionClass(
+      {
+        code: ApiErrorCode.CONFLICT,
+        message: "Username is already taken",
+        status: 409,
+      },
+      error,
+    );
+  }
+
+  if (lowerMessage.includes("invalid")) {
+    return new ApiExceptionClass(
+      {
+        code: ApiErrorCode.VALIDATION_ERROR,
+        message: "Invalid credentials",
+        status: 422,
+      },
+      error,
+    );
+  }
+
+  return new ApiExceptionClass(
+    {
+      code: ApiErrorCode.SERVER_ERROR,
+      message: "Authentication failed",
+      status: 500,
+    },
+    error,
+  );
+}
+
 // ============================================================================
 // Login Hook
 // ============================================================================
@@ -95,17 +157,44 @@ interface LoginCallbacks {
 }
 
 /**
- * Login mutation that stores token and updates family cache.
+ * Login mutation that signs in with Convex Auth and updates family cache.
  */
 export function useLogin(callbacks?: LoginCallbacks) {
+  const authActions = useAuthActions() as
+    | ReturnType<typeof useAuthActions>
+    | undefined;
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (request: LoginRequest) => authService.login(request),
-    onSuccess: (response) => {
-      // Store token
-      setStoredToken(response.data.token);
+  return useMutation<LoginResponse, ApiException, LoginRequest>({
+    mutationFn: async (request: LoginRequest) => {
+      if (!authActions) {
+        return authService.login(request);
+      }
 
+      try {
+        await authActions.signIn("password", {
+          flow: "signIn",
+          username: request.username,
+          email: usernameToAuthEmail(request.username),
+          password: request.password,
+        });
+
+        const family = await convex.query(api.family.getFamily, {});
+        if (!family.data) {
+          throw new Error("No family found");
+        }
+
+        return {
+          data: {
+            token: "",
+            family: asFamilyData(family.data as FamilyData),
+          },
+        };
+      } catch (error) {
+        throw mapConvexError(error);
+      }
+    },
+    onSuccess: (response) => {
       // Update family query cache
       queryClient.setQueryData<FamilyApiResponse>(familyKeys.family(), {
         data: response.data.family,
@@ -132,17 +221,44 @@ interface RegisterCallbacks {
 }
 
 /**
- * Register mutation that creates family, stores token, and updates cache.
+ * Register mutation that creates a Convex Auth account, family, and cache state.
  */
 export function useRegister(callbacks?: RegisterCallbacks) {
+  const authActions = useAuthActions() as
+    | ReturnType<typeof useAuthActions>
+    | undefined;
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (request: RegisterRequest) => authService.register(request),
-    onSuccess: (response) => {
-      // Store token
-      setStoredToken(response.data.token);
+  return useMutation<RegisterResponse, ApiException, RegisterRequest>({
+    mutationFn: async (request: RegisterRequest) => {
+      if (!authActions) {
+        return authService.register(request);
+      }
 
+      try {
+        await authActions.signIn("password", {
+          flow: "signUp",
+          username: request.username,
+          email: usernameToAuthEmail(request.username),
+          password: request.password,
+        });
+
+        const family = await convex.mutation(api.family.createFamily, {
+          name: request.familyName,
+          members: request.members,
+        });
+
+        return {
+          data: {
+            token: "",
+            family: asFamilyData(family.data as FamilyData),
+          },
+        };
+      } catch (error) {
+        throw mapConvexError(error);
+      }
+    },
+    onSuccess: (response) => {
       // Update family query cache
       queryClient.setQueryData<FamilyApiResponse>(familyKeys.family(), {
         data: response.data.family,
@@ -170,7 +286,13 @@ export function useRegister(callbacks?: RegisterCallbacks) {
 export function useCheckUsername(username: string, enabled = true) {
   return useQuery<UsernameCheckResponse, ApiException>({
     queryKey: authKeys.usernameCheck(username),
-    queryFn: () => authService.checkUsername(username),
+    queryFn: async () => {
+      if (import.meta.env.MODE === "test") {
+        return authService.checkUsername(username);
+      }
+
+      return convex.query(api.auth.checkUsername, { username });
+    },
     enabled: enabled && username.length >= 3,
     staleTime: 30 * 1000, // 30 seconds
   });
@@ -184,12 +306,18 @@ export function useCheckUsername(username: string, enabled = true) {
  * Returns a logout function that clears auth state and reloads the page.
  */
 export function useLogout() {
+  const authActions = useAuthActions() as
+    | ReturnType<typeof useAuthActions>
+    | undefined;
   const queryClient = useQueryClient();
 
-  return () => {
+  return async () => {
+    if (authActions) {
+      await authActions.signOut();
+    }
+
     // Clear token from storage
     clearStoredToken();
-    clearDemoSession();
 
     // Clear family data from localStorage
     localStorage.removeItem(FAMILY_STORAGE_KEY);

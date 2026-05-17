@@ -2,22 +2,18 @@ import {
   Calendar,
   CheckSquare,
   HeartPulse,
-  ImageIcon,
   ListTodo,
   type LucideIcon,
-  MonitorSmartphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type ModuleType, useAppStore } from "@/stores";
 
 const tabs: Array<{ id: ModuleType | null; label: string; icon: LucideIcon }> =
   [
-    { id: "habits", label: "Habits", icon: MonitorSmartphone },
     { id: "calendar", label: "School", icon: Calendar },
     { id: "chores", label: "Tasks", icon: CheckSquare },
     { id: "lists", label: "Rewards", icon: ListTodo },
     { id: "meals", label: "Care", icon: HeartPulse },
-    { id: "photos", label: "Memories", icon: ImageIcon },
   ];
 
 export function MobileBottomNav() {
@@ -30,7 +26,7 @@ export function MobileBottomNav() {
       className="z-30 shrink-0 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/85"
     >
       <div
-        className="grid grid-cols-6 gap-1 px-2 pt-2"
+        className="grid grid-cols-4 gap-1 px-2 pt-2"
         style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
       >
         {tabs.map((tab) => {

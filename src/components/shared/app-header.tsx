@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks";
 import { colorMap } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { useAppStore, useCalendarStore, useIsDemoMode } from "@/stores";
+import { useAppStore, useCalendarStore } from "@/stores";
 
 export function AppHeader() {
   // From calendar-store
@@ -13,7 +13,6 @@ export function AppHeader() {
   // From family-store
   const familyName = useFamilyName();
   const familyMembers = useFamilyMembers();
-  const isDemoMode = useIsDemoMode();
 
   // From app-store
   const openSidebar = useAppStore((state) => state.openSidebar);
@@ -60,11 +59,6 @@ export function AppHeader() {
             <h1 className="text-[22px] leading-7 font-semibold text-foreground">
               {familyName || "Digital Parent"}
             </h1>
-            {isDemoMode && (
-              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                Demo Mode
-              </span>
-            )}
           </div>
           {/* Date/time - hidden on mobile (device shows in status bar) */}
           {!isMobile && (

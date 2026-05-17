@@ -5,7 +5,6 @@ export {
   useAuthHasHydrated,
   useAuthStore,
   useIsAuthenticated,
-  useIsDemoMode,
 } from "./auth-store";
 // Calendar Store
 export {
@@ -20,5 +19,3 @@ export {
 } from "./calendar-store";
 // Family Store - Hydration only (data selectors moved to @/api)
 export { useFamilyStore, useHasHydrated } from "./family-store";
-export { useMealsStore } from "./meals-store";
-export { type Photo, usePhotosStore } from "./photos-store";

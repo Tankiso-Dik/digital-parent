@@ -1,12 +1,11 @@
 import { create } from "zustand";
-import { AUTH_TOKEN_STORAGE_KEY, DEMO_MODE_STORAGE_KEY } from "@/lib/constants";
 
 /**
- * Auth store - handles token hydration state.
+ * Auth store - mirrors Convex Auth state for top-level routing.
  *
- * The actual auth operations (login, logout, etc.) are handled by TanStack Query
- * hooks in src/api/hooks/use-auth.ts. This store only tracks whether we've
- * completed the initial localStorage check for an existing token.
+ * The actual auth operations are handled by Convex Auth hooks in src/api/hooks/use-auth.ts.
+ * QueryProvider bridges Convex Auth loading/authenticated state into this store so
+ * App.tsx can keep its existing route gating.
  *
  * @see useLogin, useRegister, useLogout in @/api
  */
@@ -17,58 +16,20 @@ interface AuthHydrationState {
   _hasHydrated: boolean;
 
   /**
-   * Whether a valid token exists in localStorage.
-   * Updated during hydration and by auth operations.
+   * Whether Convex Auth currently has an authenticated session.
    */
   isAuthenticated: boolean;
-  isDemoMode: boolean;
 
   setHasHydrated: (state: boolean) => void;
   setAuthenticated: (state: boolean) => void;
-  setDemoMode: (state: boolean) => void;
 }
 
 export const useAuthStore = create<AuthHydrationState>()((set) => ({
   _hasHydrated: false,
   isAuthenticated: false,
-  isDemoMode: false,
   setHasHydrated: (state) => set({ _hasHydrated: state }),
   setAuthenticated: (state) => set({ isAuthenticated: state }),
-  setDemoMode: (state) => set({ isDemoMode: state }),
 }));
-
-// ============================================================================
-// Hydration Initialization
-// ============================================================================
-
-/**
- * Check if localStorage has an auth token and mark as hydrated.
- * This runs immediately on module load.
- */
-function initializeAuthHydration(): void {
-  // In SSR/test environments, skip hydration
-  if (typeof window === "undefined") {
-    useAuthStore.getState().setHasHydrated(true);
-    return;
-  }
-
-  try {
-    const token = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
-    const isDemoMode = localStorage.getItem(DEMO_MODE_STORAGE_KEY) === "true";
-    useAuthStore.getState().setAuthenticated(!!token);
-    useAuthStore.getState().setDemoMode(isDemoMode);
-    useAuthStore.getState().setHasHydrated(true);
-  } catch (error) {
-    if (import.meta.env.DEV) {
-      console.error("Failed to check localStorage for auth token:", error);
-    }
-    // Still mark as hydrated to prevent infinite loading
-    useAuthStore.getState().setHasHydrated(true);
-  }
-}
-
-// Run hydration check immediately
-initializeAuthHydration();
 
 // ============================================================================
 // Selectors
@@ -86,8 +47,3 @@ export const useAuthHasHydrated = () =>
  */
 export const useIsAuthenticated = () =>
   useAuthStore((state) => state.isAuthenticated);
-
-/**
- * Check if the current authenticated session is the local demo.
- */
-export const useIsDemoMode = () => useAuthStore((state) => state.isDemoMode);

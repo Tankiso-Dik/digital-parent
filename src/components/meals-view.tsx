@@ -26,7 +26,6 @@ export function MealsView() {
   return (
     <div className="flex-1 overflow-y-auto p-4 sm:p-6">
       <div className="max-w-3xl mx-auto">
-        {/* Week selector */}
         <div className="mb-6 flex items-center justify-between gap-3">
           <div>
             <h2 className="text-[24px] leading-8 font-semibold text-foreground">
@@ -49,11 +48,11 @@ export function MealsView() {
           </div>
         </div>
 
-        {/* Day tabs */}
         <div className="mb-6 flex gap-2 overflow-x-auto pb-2">
           {meals.map((meal, index) => (
             <button
               key={meal.id}
+              type="button"
               onClick={() => setSelectedDay(index)}
               className={cn(
                 "flex min-w-[68px] flex-col items-center rounded-xl px-4 py-3 transition-all",
@@ -74,9 +73,7 @@ export function MealsView() {
           ))}
         </div>
 
-        {/* Meals for selected day */}
         <div className="space-y-4">
-          {/* Breakfast */}
           <div className="rounded-2xl bg-card p-4 shadow-sm">
             <div className="mb-3 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100">
@@ -96,7 +93,6 @@ export function MealsView() {
             </div>
           </div>
 
-          {/* Lunch */}
           <div className="rounded-2xl bg-card p-4 shadow-sm">
             <div className="mb-3 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
@@ -118,7 +114,6 @@ export function MealsView() {
             </div>
           </div>
 
-          {/* Dinner */}
           <div className="rounded-2xl bg-card p-4 shadow-sm">
             <div className="mb-3 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100">

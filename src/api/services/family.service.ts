@@ -1,13 +1,15 @@
 import { httpClient } from "@/api/client";
-import { demoApi, isDemoModeActive } from "@/lib/demo-data";
+import { convex } from "@/lib/convex";
 import type {
   AddMemberRequest,
   FamilyApiResponse,
+  FamilyData,
   FamilyMutationResponse,
   MemberMutationResponse,
   UpdateFamilyRequest,
   UpdateMemberRequest,
 } from "@/lib/types";
+import { api } from "../../../convex/_generated/api";
 
 export const familyService = {
   /**
@@ -15,8 +17,9 @@ export const familyService = {
    * Returns null in data field if no family exists (triggers onboarding).
    */
   async getFamily(): Promise<FamilyApiResponse> {
-    if (isDemoModeActive()) {
-      return demoApi.getFamily();
+    if (import.meta.env.MODE !== "test") {
+      const response = await convex.query(api.family.getFamily, {});
+      return { data: response.data as FamilyData | null };
     }
 
     return httpClient.get<FamilyApiResponse>("/family");
@@ -28,8 +31,9 @@ export const familyService = {
   async updateFamily(
     request: UpdateFamilyRequest,
   ): Promise<FamilyMutationResponse> {
-    if (isDemoModeActive()) {
-      return demoApi.updateFamily(request);
+    if (import.meta.env.MODE !== "test") {
+      const response = await convex.mutation(api.family.updateFamily, request);
+      return { data: response.data as FamilyData };
     }
 
     return httpClient.put<FamilyMutationResponse>("/family", request);
@@ -39,8 +43,8 @@ export const familyService = {
    * Add a new member to the family.
    */
   async addMember(request: AddMemberRequest): Promise<MemberMutationResponse> {
-    if (isDemoModeActive()) {
-      return demoApi.addMember(request);
+    if (import.meta.env.MODE !== "test") {
+      return convex.mutation(api.family.addMember, request);
     }
 
     return httpClient.post<MemberMutationResponse>("/family/members", request);
@@ -53,8 +57,14 @@ export const familyService = {
     id: string,
     request: UpdateMemberRequest,
   ): Promise<MemberMutationResponse> {
-    if (isDemoModeActive()) {
-      return demoApi.updateMember(id, request);
+    if (import.meta.env.MODE !== "test") {
+      return convex.mutation(api.family.updateMember, {
+        id: id as never,
+        name: request.name,
+        color: request.color,
+        avatarUrl: request.avatarUrl ?? undefined,
+        email: request.email,
+      });
     }
 
     return httpClient.put<MemberMutationResponse>(
@@ -67,8 +77,8 @@ export const familyService = {
    * Remove a member from the family.
    */
   async removeMember(id: string): Promise<void> {
-    if (isDemoModeActive()) {
-      demoApi.removeMember(id);
+    if (import.meta.env.MODE !== "test") {
+      await convex.mutation(api.family.removeMember, { id: id as never });
       return;
     }
 
@@ -79,8 +89,8 @@ export const familyService = {
    * Delete the entire family (reset).
    */
   async deleteFamily(): Promise<void> {
-    if (isDemoModeActive()) {
-      demoApi.deleteFamily();
+    if (import.meta.env.MODE !== "test") {
+      await convex.mutation(api.family.deleteFamily, {});
       return;
     }
 

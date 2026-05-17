@@ -5,8 +5,8 @@ describe("AppStore", () => {
   // Store reset handled globally by setup.ts afterEach via resetAllStores()
 
   describe("initial state", () => {
-    it("initializes with activeModule = habits (digital habits dashboard)", () => {
-      expect(useAppStore.getState().activeModule).toBe("habits");
+    it("initializes with activeModule = calendar", () => {
+      expect(useAppStore.getState().activeModule).toBe("calendar");
     });
 
     it("initializes with isSidebarOpen = false", () => {
@@ -15,14 +15,7 @@ describe("AppStore", () => {
   });
 
   describe("setActiveModule", () => {
-    const modules: ModuleType[] = [
-      "habits",
-      "calendar",
-      "lists",
-      "chores",
-      "meals",
-      "photos",
-    ];
+    const modules: ModuleType[] = ["calendar", "lists", "chores"];
 
     it.each(modules)("sets activeModule to '%s'", (module) => {
       useAppStore.getState().setActiveModule(module);
@@ -40,9 +33,9 @@ describe("AppStore", () => {
     it("switching modules does not affect other state", () => {
       useAppStore.setState({ isSidebarOpen: true });
 
-      useAppStore.getState().setActiveModule("meals");
+      useAppStore.getState().setActiveModule("lists");
 
-      expect(useAppStore.getState().activeModule).toBe("meals");
+      expect(useAppStore.getState().activeModule).toBe("lists");
       expect(useAppStore.getState().isSidebarOpen).toBe(true);
     });
   });
@@ -113,10 +106,10 @@ describe("AppStore", () => {
     it("changing activeModule does not affect isSidebarOpen", () => {
       useAppStore.setState({ isSidebarOpen: true });
 
-      useAppStore.getState().setActiveModule("photos");
+      useAppStore.getState().setActiveModule("lists");
 
       expect(useAppStore.getState().isSidebarOpen).toBe(true);
-      expect(useAppStore.getState().activeModule).toBe("photos");
+      expect(useAppStore.getState().activeModule).toBe("lists");
     });
 
     it("changing isSidebarOpen does not affect activeModule", () => {

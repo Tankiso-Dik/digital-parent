@@ -19,7 +19,6 @@ import {
   createMemberProfileSchema,
   type MemberProfileFormData,
 } from "@/lib/validations/family";
-import { GoogleCalendarSection } from "./google-calendar-section";
 
 interface MemberProfileModalProps {
   open: boolean;
@@ -260,17 +259,10 @@ export function MemberProfileModal({
                 id="email-description"
                 className="text-xs text-muted-foreground"
               >
-                Used for notifications and Google Calendar sync
+                Used for notifications
               </p>
             )}
           </div>
-
-          {/* Google Calendar */}
-          <GoogleCalendarSection
-            memberId={memberId}
-            memberEmail={watch("email") || member?.email || ""}
-            memberName={member?.name || ""}
-          />
 
           {/* Actions */}
           <div className="flex justify-end gap-3 pt-2">

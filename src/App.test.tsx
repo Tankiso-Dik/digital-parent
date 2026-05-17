@@ -36,15 +36,6 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it("starts demo mode from the login screen", async () => {
-    const { user } = renderWithUser(<FamilyHub />);
-
-    await user.click(await screen.findByRole("button", { name: /try demo/i }));
-
-    expect(await screen.findByText("The Thompsons")).toBeInTheDocument();
-    expect(screen.getByText("Demo Mode")).toBeInTheDocument();
-  });
-
   it("navigates to onboarding when Create an account is clicked", async () => {
     const { user } = renderWithUser(<FamilyHub />);
 

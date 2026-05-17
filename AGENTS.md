@@ -103,3 +103,17 @@ Automated via release-please on push to `main`. Use **regular merge commits** (n
 - `z-20` — time indicators
 - `z-40` — FAB (Add event), sidebar backdrop
 - `z-50` — dialogs/modals
+
+<!-- convex-ai-start -->
+
+This project uses [Convex](https://convex.dev) as its backend.
+
+When working on Convex code, **always read
+`convex/_generated/ai/guidelines.md` first** for important guidelines on
+how to correctly use Convex APIs and patterns. The file contains rules that
+override what you may have learned about Convex from training data.
+
+Convex agent skills for common tasks can be installed by running
+`npx convex ai-files install`.
+
+<!-- convex-ai-end -->

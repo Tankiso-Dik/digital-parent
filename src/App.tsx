@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useSetupComplete } from "@/api";
 import { CalendarModule } from "@/components/calendar";
-import { DigitalHabitsView } from "@/components/digital-habits-view";
 import {
   AppHeader,
   MobileBottomNav,
@@ -9,7 +8,7 @@ import {
   SidebarMenu,
 } from "@/components/shared";
 import { Toaster } from "@/components/ui/toaster";
-import { useGoogleAuthReturn, useIsMobile } from "@/hooks";
+import { useIsMobile } from "@/hooks";
 import {
   type ModuleType,
   useAppStore,
@@ -22,14 +21,11 @@ import {
 const ChoresView = lazy(() =>
   import("@/components/chores-view").then((m) => ({ default: m.ChoresView })),
 );
-const MealsView = lazy(() =>
-  import("@/components/meals-view").then((m) => ({ default: m.MealsView })),
-);
 const ListsView = lazy(() =>
   import("@/components/lists-view").then((m) => ({ default: m.ListsView })),
 );
-const PhotosView = lazy(() =>
-  import("@/components/photos-view").then((m) => ({ default: m.PhotosView })),
+const MealsView = lazy(() =>
+  import("@/components/meals-view").then((m) => ({ default: m.MealsView })),
 );
 const OnboardingFlow = lazy(() =>
   import("@/components/onboarding").then((m) => ({
@@ -50,12 +46,10 @@ function ModuleLoader() {
 
 function renderModule(activeModule: ModuleType | null) {
   if (activeModule === null) {
-    return <DigitalHabitsView />;
+    return <CalendarModule />;
   }
 
   switch (activeModule) {
-    case "habits":
-      return <DigitalHabitsView />;
     case "calendar":
       return <CalendarModule />;
     case "chores":
@@ -64,22 +58,16 @@ function renderModule(activeModule: ModuleType | null) {
           <ChoresView />
         </Suspense>
       );
-    case "meals":
-      return (
-        <Suspense fallback={<ModuleLoader />}>
-          <MealsView />
-        </Suspense>
-      );
     case "lists":
       return (
         <Suspense fallback={<ModuleLoader />}>
           <ListsView />
         </Suspense>
       );
-    case "photos":
+    case "meals":
       return (
         <Suspense fallback={<ModuleLoader />}>
-          <PhotosView />
+          <MealsView />
         </Suspense>
       );
     default:
@@ -104,15 +92,13 @@ export default function FamilyHub() {
   const setupComplete = useSetupComplete();
   const isMobile = useIsMobile();
 
-  useGoogleAuthReturn();
-
   // State to toggle between login and onboarding for new users
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // Keep legacy null routes on the new parenting command center.
+  // Keep legacy null routes on the primary calendar view.
   useEffect(() => {
     if (!isMobile && activeModule === null) {
-      setActiveModule("habits");
+      setActiveModule("calendar");
     }
   }, [isMobile, activeModule, setActiveModule]);
 

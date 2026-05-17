@@ -1,7 +1,3 @@
-// Generator functions for sample data
-// Types and data are in @/lib/types
-// Note: Calendar events now use mock API handlers in @/api/mocks/calendar.mock.ts
-
 import type { MealPlan } from "./types";
 
 export function generateSampleMeals(): MealPlan[] {
@@ -38,7 +34,7 @@ export function generateSampleMeals(): MealPlan[] {
     ],
   };
 
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 7; i += 1) {
     const date = new Date(today);
     date.setDate(today.getDate() - today.getDay() + i + 3);
 

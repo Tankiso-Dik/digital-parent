@@ -1,0 +1,24 @@
+PREREQUISITES
+=============
+- Node.js (v18 or higher recommended)
+
+
+RUNNING THE APP
+===============
+1. Install dependencies (only needed first time or after updates):
+   npm install
+
+2. Start the development server:
+   npm run dev
+
+3. Open your browser and go to:
+   http://localhost:5173
+
+
+OTHER COMMANDS
+==============
+npm run build      # Build for production
+npm run lint       # Check for lint issues
+npm run lint:fix   # Fix lint issues automatically
+npm run format     # Format code
+npm run test       # Run tests

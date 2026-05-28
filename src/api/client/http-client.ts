@@ -1,4 +1,4 @@
-import { AUTH_TOKEN_STORAGE_KEY } from "@/lib/constants";
+import { pb } from "@/lib/pb";
 import {
   ApiErrorCode,
   ApiException,
@@ -9,16 +9,12 @@ import {
 type QueryParams = Record<string, string | number | boolean | undefined>;
 
 /**
- * Get auth header from localStorage if token exists.
+ * Get auth header from PocketBase if a session exists.
  */
 function getAuthHeader(): Record<string, string> {
-  try {
-    const token = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
-    if (token) {
-      return { Authorization: `Bearer ${token}` };
-    }
-  } catch {
-    // localStorage might not be available
+  const token = pb.authStore.token;
+  if (token) {
+    return { Authorization: `Bearer ${token}` };
   }
   return {};
 }
@@ -186,16 +182,12 @@ export function createHttpClient(config: HttpClientConfig) {
 export const httpClient = createHttpClient({
   baseUrl: import.meta.env.VITE_API_BASE_URL || "/api",
   onUnauthorized: () => {
-    try {
-      const hadToken = !!localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
-      localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
-      // Only reload if a token existed (session expiry).
-      // Prevents infinite reload loop on first-visit 401s.
-      if (hadToken) {
-        window.location.reload();
-      }
-    } catch {
-      // localStorage might not be available
+    const hadToken = !!pb.authStore.token;
+    pb.authStore.clear();
+    // Only reload if a token existed (session expiry).
+    // Prevents infinite reload loop on first-visit 401s.
+    if (hadToken) {
+      window.location.reload();
     }
   },
 });

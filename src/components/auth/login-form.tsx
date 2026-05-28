@@ -6,7 +6,6 @@ import { FormError } from "@/components/ui/form-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { type LoginFormData, loginFormSchema } from "@/lib/validations/auth";
-import { useAuthStore } from "@/stores";
 import { SandboxUsersModal } from "./sandbox-users-modal";
 
 interface LoginFormProps {
@@ -15,7 +14,6 @@ interface LoginFormProps {
 
 export function LoginForm({ onSwitchToOnboarding }: LoginFormProps) {
   const login = useLogin();
-  const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
 
   const {
     register,
@@ -28,10 +26,6 @@ export function LoginForm({ onSwitchToOnboarding }: LoginFormProps) {
 
   const onSubmit = (data: LoginFormData) => {
     login.mutate(data, {
-      onSuccess: () => {
-        // Update auth store to trigger re-render
-        setAuthenticated(true);
-      },
       onError: (error) => {
         if (error.code === "UNAUTHORIZED") {
           setError("root", { message: "Invalid username or password" });

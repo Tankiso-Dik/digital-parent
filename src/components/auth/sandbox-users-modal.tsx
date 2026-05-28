@@ -1,4 +1,3 @@
-import { useQuery } from "convex/react";
 import { User, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,11 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { api } from "../../../convex/_generated/api";
-
 export function SandboxUsersModal() {
-  const users = useQuery(api.auth.listSandboxUsers);
-
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -40,34 +35,12 @@ export function SandboxUsersModal() {
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          {users === undefined ? (
-            <div className="flex justify-center p-4">
-              <span className="text-muted-foreground animate-pulse">
-                Loading users...
-              </span>
-            </div>
-          ) : users.length === 0 ? (
-            <div className="text-center p-4 text-muted-foreground">
-              <p>No sandbox users found.</p>
-              <p className="text-sm">Create an account first.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {users.map((user: any) => (
-                <div
-                  key={user.id}
-                  className="p-3 bg-muted/30 border rounded-lg flex items-center justify-between"
-                >
-                  <div>
-                    <p className="font-semibold">{user.name}</p>
-                    <p className="text-xs text-muted-foreground uppercase">
-                      {user.id}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="text-center p-4 text-muted-foreground">
+            <p>PocketBase now owns auth accounts.</p>
+            <p className="text-sm">
+              Use the PocketBase admin UI for sandbox account inspection.
+            </p>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

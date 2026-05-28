@@ -22,7 +22,7 @@ export interface FamilyMember {
 }
 
 /**
- * Family data stored in localStorage.
+ * Family data returned by the service layer.
  */
 export interface FamilyData {
   id: string;

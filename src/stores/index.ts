@@ -1,11 +1,7 @@
 // App Store
 export { type ModuleType, useAppStore } from "./app-store";
-// Auth Store - Hydration only (auth operations in @/api)
-export {
-  useAuthHasHydrated,
-  useAuthStore,
-  useIsAuthenticated,
-} from "./auth-store";
+// Auth selectors backed by PocketBase
+export { useAuthHasHydrated, useIsAuthenticated } from "./auth-store";
 // Calendar Store
 export {
   useCalendarActions,
@@ -17,5 +13,5 @@ export {
   useHasUserSetView,
   useIsViewingToday,
 } from "./calendar-store";
-// Family Store - Hydration only (data selectors moved to @/api)
+// Family compatibility selectors (data selectors live in @/api)
 export { useFamilyStore, useHasHydrated } from "./family-store";

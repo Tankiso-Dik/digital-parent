@@ -31,8 +31,16 @@ A family dashboard I'm building to organize our household — calendars, chores,
 
 ```bash
 npm install
-npm run dev      # localhost:5173
+npm run setup    # downloads/configures local PocketBase
+npm run dev:full # PocketBase :8090 + Vite :5173
 ```
+
+Default local login:
+
+- App: `family` / `password123`
+- PocketBase admin: `admin@digital-parent.local` / `digital-parent-admin-123`
+
+See [PocketBase Backend](docs/POCKETBASE.md) for setup commands and overrides.
 
 ## Testing
 
@@ -46,20 +54,21 @@ npm run test:e2e      # Playwright E2E tests
 Why I chose what I chose:
 
 - **React 19** + TypeScript + Vite — Fast dev experience, modern features
+- **PocketBase** — Local backend, auth, collections, and admin UI
 - **TanStack Query** + **Zustand** — Server state and UI state, cleanly separated
 - **Tailwind CSS v4** + shadcn/ui — Beautiful, consistent styling
 - **Vitest** + **Playwright** — Comprehensive testing (390+ tests)
 
 ## Current Status
 
-**v0.3.8** — Calendar is feature-complete with mock API. Ready for backend integration. <!-- x-release-please-version -->
+**v0.3.8** — Calendar, chores, lists, and family setup run against PocketBase locally. <!-- x-release-please-version -->
 
 | Module   | Status           |
 | -------- | ---------------- |
 | Calendar | ✅ Complete      |
-| Chores   | 🎨 UI ready      |
+| Chores   | ✅ PocketBase    |
 | Meals    | 🎨 UI ready      |
-| Lists    | 🎨 UI ready      |
+| Lists    | ✅ PocketBase    |
 | Photos   | 🎨 UI ready      |
 
 See [ROADMAP.md](docs/ROADMAP.md) for the full journey and what's next.

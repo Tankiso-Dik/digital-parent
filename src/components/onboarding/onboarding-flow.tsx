@@ -1,9 +1,8 @@
 import { useCallback, useState } from "react";
 import type { z } from "zod";
-import { ApiException, useCreateFamily, useRegister } from "@/api";
+import { ApiException, useRegister } from "@/api";
 import type { FamilyMember } from "@/lib/types";
 import type { memberFormSchema } from "@/lib/validations/family";
-import { useAuthStore } from "@/stores";
 import { OnboardingCredentials } from "./onboarding-credentials";
 import { OnboardingFamilyName } from "./onboarding-family-name";
 import { OnboardingMembers } from "./onboarding-members";
@@ -26,8 +25,6 @@ export function OnboardingFlow() {
 
   // API mutation for registering family with credentials
   const registerAuth = useRegister();
-  const createFamily = useCreateFamily();
-  const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
 
   // Navigation handlers
   const handleWelcomeNext = () => {
@@ -110,27 +107,8 @@ export function OnboardingFlow() {
         members: draftMembers.map(({ name, color }) => ({ name, color })),
       },
       {
-        onSuccess: () => {
-          // Now that auth is registered, create the family in the database
-          createFamily.mutate(
-            {
-              name: draftName,
-              members: draftMembers.map(({ name, color }) => ({ name, color })),
-            },
-            {
-              onSuccess: () => {
-                // Update auth store to trigger re-render
-                setAuthenticated(true);
-              },
-              onError: (error) => {
-                setRegistrationError(getRegistrationErrorMessage(error));
-              },
-            },
-          );
-        },
-        onError: (error) => {
-          setRegistrationError(getRegistrationErrorMessage(error));
-        },
+        onError: (error) =>
+          setRegistrationError(getRegistrationErrorMessage(error)),
       },
     );
   };
@@ -165,7 +143,7 @@ export function OnboardingFlow() {
         <OnboardingCredentials
           onNext={handleCredentialsNext}
           onBack={handleCredentialsBack}
-          isSubmitting={registerAuth.isPending || createFamily.isPending}
+          isSubmitting={registerAuth.isPending}
           error={registrationError}
         />
       );

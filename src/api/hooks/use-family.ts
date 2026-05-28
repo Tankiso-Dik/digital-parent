@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import type { ApiException } from "@/api/client";
 import { familyService } from "@/api/services";
-import { FAMILY_STORAGE_KEY } from "@/lib/constants";
 import type {
   AddMemberRequest,
   CreateFamilyRequest,
@@ -17,8 +16,7 @@ import type {
   UpdateMemberRequest,
 } from "@/lib/types";
 import { familyColors } from "@/lib/types";
-import { validateFamilyData } from "@/lib/validations/family";
-import { useIsAuthenticated } from "@/stores";
+import { usePbAuth } from "@/providers/pb-provider";
 
 // ============================================================================
 // Query Keys Factory
@@ -29,61 +27,8 @@ export const familyKeys = {
   family: () => [...familyKeys.all, "data"] as const,
 };
 
-// ============================================================================
-// localStorage Helpers
-// ============================================================================
-
 /**
- * Write family data to localStorage for:
- * 1. Instant startup on next page load (cache seeding)
- * 2. Cross-tab sync via storage events
- */
-function writeFamilyToStorage(family: FamilyData | null): void {
-  try {
-    if (family === null) {
-      localStorage.removeItem(FAMILY_STORAGE_KEY);
-    } else {
-      // Match Zustand persist format for compatibility
-      const stored = {
-        state: {
-          family,
-          _hasHydrated: true,
-        },
-        version: 0,
-      };
-      localStorage.setItem(FAMILY_STORAGE_KEY, JSON.stringify(stored));
-    }
-  } catch (error) {
-    if (import.meta.env.DEV) {
-      console.error("Failed to write family to localStorage:", error);
-    }
-  }
-}
-
-/**
- * Read family data from localStorage for cache seeding.
- */
-export function readFamilyFromStorage(): FamilyData | null {
-  try {
-    const stored = localStorage.getItem(FAMILY_STORAGE_KEY);
-    if (!stored) return null;
-
-    const parsed = JSON.parse(stored);
-    return validateFamilyData(parsed?.state?.family);
-  } catch (error) {
-    if (import.meta.env.DEV) {
-      console.error("Failed to read family from localStorage:", error);
-    }
-    return null;
-  }
-}
-
-// ============================================================================
-// Main Query
-// ============================================================================
-
-/**
- * Fetch family data with localStorage seeding for instant startup.
+ * Fetch family data from PocketBase through the service layer.
  */
 export function useFamily(
   options?: Omit<
@@ -95,16 +40,6 @@ export function useFamily(
     queryKey: familyKeys.family(),
     queryFn: familyService.getFamily,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    // Seed from localStorage for instant startup
-    initialData: () => {
-      const cached = readFamilyFromStorage();
-      if (cached) {
-        return { data: cached };
-      }
-      return undefined;
-    },
-    // Mark initialData as potentially stale to trigger background refetch
-    initialDataUpdatedAt: 0,
     ...options,
   });
 }
@@ -148,11 +83,29 @@ export function useFamilyName(): string {
  * for unauthenticated users and triggering an infinite reload loop.
  */
 export function useSetupComplete(): boolean {
-  const isAuthenticated = useIsAuthenticated();
+  const { isAuthenticated } = usePbAuth();
   const { data, isFetched } = useFamily({ enabled: isAuthenticated });
   if (!isFetched) return false;
   const family = data?.data;
   return family != null && family.members.length > 0;
+}
+
+export function useSetupStatus(): {
+  isLoading: boolean;
+  isComplete: boolean;
+  isError: boolean;
+} {
+  const { isAuthenticated } = usePbAuth();
+  const { data, isError, isLoading, isFetching } = useFamily({
+    enabled: isAuthenticated,
+  });
+  const family = data?.data;
+
+  return {
+    isLoading: isAuthenticated && (isLoading || (isFetching && !data)),
+    isComplete: family != null && family.members.length > 0,
+    isError,
+  };
 }
 
 /**
@@ -244,8 +197,6 @@ export function useUpdateFamily(callbacks?: UpdateFamilyCallbacks) {
       queryClient.setQueryData<FamilyApiResponse>(familyKeys.family(), {
         data: response.data,
       });
-      // Write-through to localStorage
-      writeFamilyToStorage(response.data);
       callbacks?.onSuccess?.(response);
     },
   });
@@ -263,28 +214,13 @@ export function useCreateFamily(callbacks?: CreateFamilyCallbacks) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (request: CreateFamilyRequest) => {
-      // Direct call via convex with the current auth context in the React tree provider
-      if (import.meta.env.MODE !== "test") {
-        const { convex } = await import("@/lib/convex");
-        const { api } = await import("../../../convex/_generated/api");
-        const response = await convex.mutation(
-          api.family.createFamily,
-          request,
-        );
-        return { data: response.data as FamilyData };
-      }
-
-      const { httpClient } = await import("@/api/client");
-      return httpClient.post<FamilyMutationResponse>("/family", request);
-    },
+    mutationFn: (request: CreateFamilyRequest) =>
+      familyService.createFamily(request),
     onSuccess: (response) => {
       // Update with server response
       queryClient.setQueryData<FamilyApiResponse>(familyKeys.family(), {
         data: response.data,
       });
-      // Write-through to localStorage
-      writeFamilyToStorage(response.data);
       callbacks?.onSuccess?.(response);
     },
     onError: (error: ApiException) => {
@@ -354,8 +290,6 @@ export function useAddMember(callbacks?: AddMemberCallbacks) {
           ...currentData,
           data: updatedFamily,
         });
-        // Write-through to localStorage
-        writeFamilyToStorage(updatedFamily);
       }
       callbacks?.onSuccess?.(response);
     },
@@ -434,8 +368,6 @@ export function useUpdateMember(callbacks?: UpdateMemberCallbacks) {
           ...currentData,
           data: updatedFamily,
         });
-        // Write-through to localStorage
-        writeFamilyToStorage(updatedFamily);
       }
       callbacks?.onSuccess?.(response);
     },
@@ -484,13 +416,6 @@ export function useRemoveMember(callbacks?: RemoveMemberCallbacks) {
       callbacks?.onError?.(error);
     },
     onSuccess: () => {
-      // Get current data and write to localStorage
-      const currentData = queryClient.getQueryData<FamilyApiResponse>(
-        familyKeys.family(),
-      );
-      if (currentData?.data) {
-        writeFamilyToStorage(currentData.data);
-      }
       callbacks?.onSuccess?.();
     },
   });
@@ -514,29 +439,10 @@ export function useDeleteFamily(callbacks?: DeleteFamilyCallbacks) {
       queryClient.setQueryData<FamilyApiResponse>(familyKeys.family(), {
         data: null,
       });
-      // Clear localStorage
-      writeFamilyToStorage(null);
       callbacks?.onSuccess?.();
     },
     onError: (error: ApiException) => {
       callbacks?.onError?.(error);
     },
-  });
-}
-
-// ============================================================================
-// Cross-Tab Sync Helper
-// ============================================================================
-
-/**
- * Sync family data from localStorage to query cache.
- * Called by the storage event listener in family-store.ts.
- */
-export function syncFamilyFromStorage(
-  queryClient: ReturnType<typeof useQueryClient>,
-): void {
-  const family = readFamilyFromStorage();
-  queryClient.setQueryData<FamilyApiResponse>(familyKeys.family(), {
-    data: family,
   });
 }

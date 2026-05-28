@@ -7,8 +7,9 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactElement, ReactNode } from "react";
+import { MemoryRouter } from "react-router-dom";
 import { type FamilyApiResponse, familyKeys } from "@/api";
-import { AUTH_TOKEN_STORAGE_KEY, FAMILY_STORAGE_KEY } from "@/lib/constants";
+import { pb } from "@/lib/pb";
 import type {
   CalendarEvent,
   CalendarViewType,
@@ -16,11 +17,10 @@ import type {
   FamilyMember,
   FilterState,
 } from "@/lib/types";
+import { PbProvider } from "@/providers/pb-provider";
 import type { ModuleType } from "@/stores/app-store";
 import { useAppStore } from "@/stores/app-store";
-import { useAuthStore } from "@/stores/auth-store";
 import { useCalendarStore } from "@/stores/calendar-store";
-import { useFamilyStore } from "@/stores/family-store";
 import { resetMockFamily, seedMockFamily } from "./mocks/handlers";
 
 // =============================================================================
@@ -95,20 +95,32 @@ export function resetTestQueryClient(): void {
 interface AllProvidersProps {
   children: ReactNode;
   queryClient?: QueryClient;
+  route?: string;
 }
 
 /**
  * Wrapper component that includes all providers needed for testing.
  * Uses the global test query client by default for consistent state across seeding and rendering.
  */
-function AllProviders({ children, queryClient }: AllProvidersProps) {
+function AllProviders({
+  children,
+  queryClient,
+  route = "/calendar",
+}: AllProvidersProps) {
   const client = queryClient ?? testQueryClient;
 
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+  return (
+    <PbProvider>
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>
+      </QueryClientProvider>
+    </PbProvider>
+  );
 }
 
 interface CustomRenderOptions extends Omit<RenderOptions, "wrapper"> {
   queryClient?: QueryClient;
+  route?: string;
 }
 
 /**
@@ -125,11 +137,13 @@ interface CustomRenderOptions extends Omit<RenderOptions, "wrapper"> {
  */
 function customRender(
   ui: ReactElement,
-  { queryClient, ...options }: CustomRenderOptions = {},
+  { queryClient, route, ...options }: CustomRenderOptions = {},
 ) {
   return render(ui, {
     wrapper: ({ children }) => (
-      <AllProviders queryClient={queryClient}>{children}</AllProviders>
+      <AllProviders queryClient={queryClient} route={route}>
+        {children}
+      </AllProviders>
     ),
     ...options,
   });
@@ -165,7 +179,7 @@ export {
 
 /**
  * Seed family data for tests.
- * Seeds both the TanStack Query cache and localStorage (for components that read directly).
+ * Seeds both the TanStack Query cache and MSW mock state.
  *
  * @example
  * seedFamilyStore({
@@ -190,21 +204,11 @@ export function seedFamilyStore(
 
   // Seed MSW mock (for background refetches that hit the API)
   seedMockFamily(familyData);
-
-  // Seed localStorage (for components/hooks that read directly from it)
-  const stored = {
-    state: { family: familyData, _hasHydrated: true },
-    version: 0,
-  };
-  localStorage.setItem(FAMILY_STORAGE_KEY, JSON.stringify(stored));
-
-  // Mark Zustand store as hydrated
-  useFamilyStore.getState().setHasHydrated(true);
 }
 
 /**
  * Reset family data to empty state.
- * Clears query cache, localStorage, MSW mock, and marks store as hydrated.
+ * Clears query cache and MSW mock.
  */
 export function resetFamilyStore(): void {
   // Clear query cache
@@ -212,12 +216,6 @@ export function resetFamilyStore(): void {
 
   // Clear MSW mock
   resetMockFamily();
-
-  // Clear localStorage
-  localStorage.removeItem(FAMILY_STORAGE_KEY);
-
-  // Mark as hydrated (so app doesn't show loading)
-  useFamilyStore.getState().setHasHydrated(true);
 }
 
 /**
@@ -333,11 +331,7 @@ export function seedAppStore(data: {
  * Reset the auth store to its initial state.
  */
 export function resetAuthStore(): void {
-  useAuthStore.setState({
-    _hasHydrated: false,
-    isAuthenticated: false,
-  });
-  localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+  pb.authStore.clear();
 }
 
 /**
@@ -347,10 +341,22 @@ export function resetAuthStore(): void {
  * seedAuthStore({ isAuthenticated: true });
  */
 export function seedAuthStore(data?: { isAuthenticated?: boolean }): void {
-  useAuthStore.setState({
-    _hasHydrated: true,
-    isAuthenticated: data?.isAuthenticated ?? false,
-  });
+  if (data?.isAuthenticated ?? false) {
+    const payload = btoa(
+      JSON.stringify({
+        id: "test-user",
+        exp: Math.floor(Date.now() / 1000) + 60 * 60,
+      }),
+    );
+
+    pb.authStore.save(`test.${payload}.sig`, {
+      id: "test-user",
+      email: "test@digital-parent.local",
+    } as never);
+    return;
+  }
+
+  pb.authStore.clear();
 }
 
 /**

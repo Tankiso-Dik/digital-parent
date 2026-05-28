@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.7/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.4/schema.json",
   "linter": {
     "enabled": true,
     "rules": {
@@ -63,8 +63,8 @@
       "**/*.js",
       "**/*.json",
       "!!dist",
+      "!!.local-pocketbase",
       "!!node_modules",
-      "!!convex/_generated",
       "!!.husky",
       "!!coverage",
       "!!test-results"

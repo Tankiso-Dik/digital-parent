@@ -1,11 +1,14 @@
+import { act } from "@testing-library/react";
 import { beforeEach } from "vitest";
 import FamilyHub from "./App";
 import {
   render,
   renderWithUser,
+  resetAuthStore,
   resetFamilyStore,
   screen,
   seedAuthStore,
+  seedFamilyStore,
 } from "./test/test-utils";
 
 describe("App", () => {
@@ -54,5 +57,34 @@ describe("App", () => {
     expect(
       screen.getByRole("button", { name: /get started/i }),
     ).toBeInTheDocument();
+  });
+
+  it("returns to login after logging out from an account created through onboarding", async () => {
+    const { user } = renderWithUser(<FamilyHub />);
+
+    await screen.findByText("Welcome Back!");
+    await user.click(
+      screen.getByRole("button", { name: /create an account/i }),
+    );
+    await screen.findByText("Welcome to Digital Parent");
+
+    act(() => {
+      seedFamilyStore({
+        name: "Test Family",
+        members: [{ id: "member-1", name: "Alex", color: "coral" }],
+      });
+      seedAuthStore({ isAuthenticated: true });
+    });
+
+    expect(await screen.findByText("Test Family")).toBeInTheDocument();
+
+    act(() => {
+      resetAuthStore();
+    });
+
+    expect(await screen.findByText("Welcome Back!")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Welcome to Digital Parent"),
+    ).not.toBeInTheDocument();
   });
 });

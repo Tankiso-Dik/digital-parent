@@ -30,8 +30,6 @@ export {
 
 export {
   familyKeys,
-  readFamilyFromStorage,
-  syncFamilyFromStorage,
   useAddMember,
   useCreateFamily,
   useDeleteFamily,
@@ -44,6 +42,7 @@ export {
   useFamilyName,
   useRemoveMember,
   useSetupComplete,
+  useSetupStatus,
   useUnusedColors,
   useUpdateFamily,
   useUpdateMember,

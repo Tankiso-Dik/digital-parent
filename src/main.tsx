@@ -1,5 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import { PbProvider } from "@/providers/pb-provider";
 import { QueryProvider } from "@/providers/query-provider";
 import "@fontsource/nunito/latin-400.css";
 import "@fontsource/nunito/latin-500.css";
@@ -10,8 +12,12 @@ import App from "./App.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryProvider>
-      <App />
-    </QueryProvider>
+    <PbProvider>
+      <QueryProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </QueryProvider>
+    </PbProvider>
   </StrictMode>,
 );

@@ -1,6 +1,7 @@
 PREREQUISITES
 =============
-- Node.js (v18 or higher recommended)
+- Node.js 20.19+ or 22.12+
+- npm
 
 
 RUNNING THE APP
@@ -8,15 +9,27 @@ RUNNING THE APP
 1. Install dependencies (only needed first time or after updates):
    npm install
 
-2. Start the development server:
-   npm run dev
+2. Configure local PocketBase:
+   npm run setup
 
-3. Open your browser and go to:
+3. Start PocketBase and the development server together:
+   npm run dev:full
+
+4. Open your browser and go to:
    http://localhost:5173
+
+Default app login:
+   username: family
+   password: password123
+
+PocketBase admin UI:
+   http://127.0.0.1:8090/_/
+   admin@digital-parent.local / digital-parent-admin-123
 
 
 OTHER COMMANDS
 ==============
+npm run pb:serve   # Run only PocketBase
 npm run build      # Build for production
 npm run lint       # Check for lint issues
 npm run lint:fix   # Fix lint issues automatically

@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { useSetupComplete } from "@/api";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { useLogout, useSetupStatus } from "@/api";
 import { CalendarModule } from "@/components/calendar";
 import {
   AppHeader,
@@ -9,13 +10,8 @@ import {
 } from "@/components/shared";
 import { Toaster } from "@/components/ui/toaster";
 import { useIsMobile } from "@/hooks";
-import {
-  type ModuleType,
-  useAppStore,
-  useAuthHasHydrated,
-  useHasHydrated,
-  useIsAuthenticated,
-} from "@/stores";
+import { usePbAuth } from "@/providers/pb-provider";
+import { type ModuleType, useAppStore } from "@/stores";
 
 // Lazy load non-primary modules for code splitting
 const ChoresView = lazy(() =>
@@ -75,6 +71,20 @@ function renderModule(activeModule: ModuleType | null) {
   }
 }
 
+function moduleFromPath(pathname: string): ModuleType {
+  const [, segment] = pathname.split("/");
+
+  switch (segment) {
+    case "chores":
+    case "lists":
+    case "meals":
+    case "calendar":
+      return segment;
+    default:
+      return "calendar";
+  }
+}
+
 function LoadingScreen() {
   return (
     <div className="h-screen flex items-center justify-center bg-background">
@@ -83,17 +93,50 @@ function LoadingScreen() {
   );
 }
 
+function FamilyLoadErrorScreen() {
+  const logout = useLogout();
+
+  return (
+    <div className="h-screen flex items-center justify-center bg-background p-6">
+      <div className="w-full max-w-sm space-y-4 text-center">
+        <div className="space-y-2">
+          <h1 className="text-xl font-semibold text-foreground">
+            Unable to load your family
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Check that PocketBase is running, then try signing in again.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => void logout()}
+          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          Back to sign in
+        </button>
+      </div>
+      <Toaster />
+    </div>
+  );
+}
+
 export default function FamilyHub() {
+  const location = useLocation();
   const activeModule = useAppStore((state) => state.activeModule);
   const setActiveModule = useAppStore((state) => state.setActiveModule);
-  const hasHydrated = useHasHydrated();
-  const authHasHydrated = useAuthHasHydrated();
-  const isAuthenticated = useIsAuthenticated();
-  const setupComplete = useSetupComplete();
+  const { isReady, isAuthenticated } = usePbAuth();
+  const setupStatus = useSetupStatus();
   const isMobile = useIsMobile();
 
   // State to toggle between login and onboarding for new users
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    const routeModule = moduleFromPath(location.pathname);
+    if (activeModule !== routeModule) {
+      setActiveModule(routeModule);
+    }
+  }, [location.pathname, activeModule, setActiveModule]);
 
   // Keep legacy null routes on the primary calendar view.
   useEffect(() => {
@@ -102,8 +145,15 @@ export default function FamilyHub() {
     }
   }, [isMobile, activeModule, setActiveModule]);
 
-  // Wait for both stores to hydrate from localStorage
-  if (!hasHydrated || !authHasHydrated) {
+  // A completed registration authenticates the user from the onboarding flow.
+  // Clear the local toggle so a later logout returns to sign in, not onboarding.
+  useEffect(() => {
+    if (isAuthenticated) {
+      setShowOnboarding(false);
+    }
+  }, [isAuthenticated]);
+
+  if (!isReady) {
     return <LoadingScreen />;
   }
 
@@ -129,8 +179,16 @@ export default function FamilyHub() {
     );
   }
 
+  if (setupStatus.isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (setupStatus.isError) {
+    return <FamilyLoadErrorScreen />;
+  }
+
   // Authenticated but setup not complete (edge case)
-  if (!setupComplete) {
+  if (!setupStatus.isComplete) {
     return (
       <>
         <Suspense fallback={<LoadingScreen />}>
@@ -149,11 +207,45 @@ export default function FamilyHub() {
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {!isMobile && <NavigationTabs />}
           <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
-            {renderModule(activeModule)}
+            <Routes>
+              <Route path="/" element={<Navigate to="/calendar" replace />} />
+              <Route path="/calendar" element={<CalendarModule />} />
+              <Route path="/calendar/:date" element={<CalendarModule />} />
+              <Route
+                path="/chores"
+                element={
+                  <Suspense fallback={<ModuleLoader />}>
+                    <ChoresView />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/lists"
+                element={
+                  <Suspense fallback={<ModuleLoader />}>
+                    <ListsView />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/meals"
+                element={
+                  <Suspense fallback={<ModuleLoader />}>
+                    <MealsView />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="*"
+                element={renderModule(activeModule ?? "calendar")}
+              />
+            </Routes>
           </main>
         </div>
 
-        {isMobile && isAuthenticated && setupComplete && <MobileBottomNav />}
+        {isMobile && isAuthenticated && setupStatus.isComplete && (
+          <MobileBottomNav />
+        )}
         <SidebarMenu />
       </div>
       <Toaster />

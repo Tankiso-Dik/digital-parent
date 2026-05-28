@@ -1,4 +1,5 @@
 import { Calendar, CheckSquare, HeartPulse, ListTodo } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { type ModuleType, useAppStore } from "@/stores";
 
@@ -13,6 +14,7 @@ const tabs = [
 ];
 
 export function NavigationTabs() {
+  const navigate = useNavigate();
   const activeModule = useAppStore((state) => state.activeModule);
   const setActiveModule = useAppStore((state) => state.setActiveModule);
 
@@ -25,7 +27,10 @@ export function NavigationTabs() {
         return (
           <button
             key={tab.id}
-            onClick={() => setActiveModule(tab.id)}
+            onClick={() => {
+              setActiveModule(tab.id);
+              navigate(`/${tab.id}`);
+            }}
             className={cn(
               "flex flex-col items-center gap-1 px-2 py-3 rounded-xl w-16 transition-colors",
               isActive

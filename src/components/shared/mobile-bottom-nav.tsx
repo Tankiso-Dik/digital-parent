@@ -5,6 +5,7 @@ import {
   ListTodo,
   type LucideIcon,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { type ModuleType, useAppStore } from "@/stores";
 
@@ -17,6 +18,7 @@ const tabs: Array<{ id: ModuleType | null; label: string; icon: LucideIcon }> =
   ];
 
 export function MobileBottomNav() {
+  const navigate = useNavigate();
   const activeModule = useAppStore((state) => state.activeModule);
   const setActiveModule = useAppStore((state) => state.setActiveModule);
 
@@ -37,7 +39,10 @@ export function MobileBottomNav() {
             <button
               key={tab.label}
               type="button"
-              onClick={() => setActiveModule(tab.id)}
+              onClick={() => {
+                setActiveModule(tab.id);
+                navigate(`/${tab.id ?? "calendar"}`);
+              }}
               aria-label={tab.label}
               aria-current={isActive ? "page" : undefined}
               className={cn(

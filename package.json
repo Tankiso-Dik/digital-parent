@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:full": "node scripts/pocketbase-local.mjs dev",
     "build": "tsc -b && vite build",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
@@ -18,7 +19,11 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "analyze": "npm run build && echo 'Bundle analysis available at dist/stats.html'",
-    "lighthouse": "npm run build && lhci autorun"
+    "lighthouse": "npm run build && lhci autorun",
+    "pb:install": "node scripts/pocketbase-local.mjs install",
+    "pb:serve": "node scripts/pocketbase-local.mjs serve",
+    "pb:setup": "node scripts/pocketbase-local.mjs setup",
+    "setup": "npm run pb:setup"
   },
   "lint-staged": {
     "*.{js,ts,tsx,json}": [
@@ -26,8 +31,6 @@
     ]
   },
   "dependencies": {
-    "@auth/core": "^0.37.0",
-    "@convex-dev/auth": "^0.0.92",
     "@fontsource/nunito": "^5.2.7",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
@@ -62,14 +65,15 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "convex": "^1.39.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.576.0",
     "next-themes": "^0.4.6",
+    "pocketbase": "^0.27.0",
     "react": "^19.2.4",
     "react-day-picker": "^9.14.0",
     "react-dom": "^19.2.4",
     "react-hook-form": "^7.71.2",
+    "react-router-dom": "^7.15.1",
     "tailwind-merge": "^3.5.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^4.3.6",
@@ -89,6 +93,7 @@
     "@vitejs/plugin-react": "^5.1.4",
     "@vitest/coverage-v8": "^4.0.18",
     "@vitest/ui": "^4.0.16",
+    "extract-zip": "^2.0.1",
     "husky": "^9.1.7",
     "jsdom": "^25.0.1",
     "lint-staged": "^16.3.1",

@@ -47,11 +47,9 @@ window.scrollTo = vi.fn();
 // =============================================================================
 
 // Import stores directly to reset them (avoid circular deps with test-utils)
-import { AUTH_TOKEN_STORAGE_KEY, FAMILY_STORAGE_KEY } from "@/lib/constants";
+import { pb } from "@/lib/pb";
 import { useAppStore } from "@/stores/app-store";
-import { useAuthStore } from "@/stores/auth-store";
 import { useCalendarStore } from "@/stores/calendar-store";
-import { useFamilyStore } from "@/stores/family-store";
 import { resetTestQueryClient } from "@/test/test-utils";
 
 /**
@@ -59,14 +57,6 @@ import { resetTestQueryClient } from "@/test/test-utils";
  * Called after each test to prevent state leakage.
  */
 function resetAllStores(): void {
-  // Reset family store (now only has hydration state)
-  useFamilyStore.setState({
-    _hasHydrated: false,
-  });
-
-  // Clear family data from localStorage
-  localStorage.removeItem(FAMILY_STORAGE_KEY);
-
   // Reset calendar store
   useCalendarStore.setState({
     currentDate: new Date(),
@@ -87,12 +77,8 @@ function resetAllStores(): void {
     isSidebarOpen: false,
   });
 
-  // Reset auth store
-  useAuthStore.setState({
-    _hasHydrated: false,
-    isAuthenticated: false,
-  });
-  localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+  // Reset PocketBase auth
+  pb.authStore.clear();
 }
 
 // =============================================================================

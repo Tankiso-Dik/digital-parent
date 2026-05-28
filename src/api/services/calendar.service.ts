@@ -1,5 +1,5 @@
 import { httpClient } from "@/api/client";
-import { convex } from "@/lib/convex";
+import { optionalString, pb, pbCollections } from "@/lib/pb";
 import { parseLocalDate } from "@/lib/time-utils";
 import type {
   ApiResponse,
@@ -9,7 +9,7 @@ import type {
   GetEventsParams,
   UpdateEventRequest,
 } from "@/lib/types";
-import { api } from "../../../convex/_generated/api";
+import { familyService } from "./family.service";
 
 /**
  * Convert a wire-format event response (date as string) to a domain CalendarEvent (date as Date).
@@ -35,129 +35,128 @@ function mapEventsResponse(
   return { ...response, data: response.data.map(toCalendarEvent) };
 }
 
-function asEventResponse(
-  response: unknown,
-): ApiResponse<CalendarEventResponse> {
-  return response as ApiResponse<CalendarEventResponse>;
+function mapRecordToEvent(
+  record: Record<string, unknown>,
+): CalendarEventResponse {
+  return {
+    id: String(record.id),
+    title: String(record.title ?? ""),
+    date: String(record.date ?? ""),
+    startTime: String(record.startTime ?? ""),
+    endTime: String(record.endTime ?? ""),
+    endDate: optionalString(record.endDate),
+    memberId: String(record.memberId ?? ""),
+    isAllDay: Boolean(record.isAllDay),
+    location: optionalString(record.location),
+    recurrenceRule: optionalString(record.recurrenceRule),
+    recurringEventId: optionalString(record.recurringEventId),
+    source: (record.source as CalendarEventResponse["source"]) ?? "NATIVE",
+    description: optionalString(record.description),
+    htmlLink: optionalString(record.htmlLink),
+  };
 }
 
-function asEventsResponse(
-  response: unknown,
-): ApiResponse<CalendarEventResponse[]> {
-  return response as ApiResponse<CalendarEventResponse[]>;
+async function requireFamilyId(): Promise<string> {
+  const response = await familyService.getFamily();
+  if (!response.data) {
+    throw new Error("Family not found");
+  }
+  return response.data.id;
 }
 
 export const calendarService = {
   async getEvents(
     params: GetEventsParams,
   ): Promise<ApiResponse<CalendarEvent[]>> {
-    if (import.meta.env.MODE !== "test") {
+    if (import.meta.env.MODE === "test") {
       return mapEventsResponse(
-        asEventsResponse(
-          await convex.query(api.events.getEvents, {
-            startDate: params.startDate,
-            endDate: params.endDate,
-            memberId: params.memberId as never,
-          }),
+        await httpClient.get<ApiResponse<CalendarEventResponse[]>>(
+          "/calendar/events",
+          {
+            params: params as unknown as Record<string, string | undefined>,
+          },
         ),
       );
     }
 
-    return mapEventsResponse(
-      await httpClient.get<ApiResponse<CalendarEventResponse[]>>(
-        "/calendar/events",
-        {
-          params: params as unknown as Record<string, string | undefined>,
-        },
-      ),
-    );
+    const familyId = await requireFamilyId();
+    const filterParts = [
+      pb.filter("familyId = {:familyId}", { familyId }),
+      pb.filter("date >= {:startDate}", { startDate: params.startDate }),
+      pb.filter("date <= {:endDate}", { endDate: params.endDate }),
+    ];
+    if (params.memberId) {
+      filterParts.push(pb.filter("memberId = {:memberId}", params));
+    }
+
+    const records = await pb.collection(pbCollections.events).getFullList({
+      filter: filterParts.join(" && "),
+      sort: "date,startTime",
+    });
+    return mapEventsResponse({ data: records.map(mapRecordToEvent) });
   },
 
   async getEventById(id: string): Promise<ApiResponse<CalendarEvent>> {
-    if (import.meta.env.MODE !== "test") {
+    if (import.meta.env.MODE === "test") {
       return mapEventResponse(
-        asEventResponse(
-          await convex.query(api.events.getEventById, { id: id as never }),
+        await httpClient.get<ApiResponse<CalendarEventResponse>>(
+          `/calendar/events/${id}`,
         ),
       );
     }
 
-    return mapEventResponse(
-      await httpClient.get<ApiResponse<CalendarEventResponse>>(
-        `/calendar/events/${id}`,
-      ),
-    );
+    const record = await pb.collection(pbCollections.events).getOne(id);
+    return mapEventResponse({ data: mapRecordToEvent(record) });
   },
 
   async createEvent(
     request: CreateEventRequest,
   ): Promise<ApiResponse<CalendarEvent>> {
-    if (import.meta.env.MODE !== "test") {
+    if (import.meta.env.MODE === "test") {
       return mapEventResponse(
-        asEventResponse(
-          await convex.mutation(api.events.createEvent, {
-            title: request.title,
-            date: request.date,
-            startTime: request.startTime,
-            endTime: request.endTime,
-            endDate: request.endDate ?? null,
-            memberId: request.memberId as never,
-            isAllDay: request.isAllDay ?? false,
-            location: request.location ?? null,
-            recurrenceRule: request.recurrenceRule ?? null,
-            description: request.description ?? null,
-          }),
+        await httpClient.post<ApiResponse<CalendarEventResponse>>(
+          "/calendar/events",
+          request,
         ),
       );
     }
 
-    return mapEventResponse(
-      await httpClient.post<ApiResponse<CalendarEventResponse>>(
-        "/calendar/events",
-        request,
-      ),
-    );
+    const familyId = await requireFamilyId();
+    const record = await pb.collection(pbCollections.events).create({
+      ...request,
+      familyId,
+      isAllDay: request.isAllDay ?? false,
+      source: "NATIVE",
+    });
+    return mapEventResponse({ data: mapRecordToEvent(record) });
   },
 
   async updateEvent(
     id: string,
     request: UpdateEventRequest,
   ): Promise<ApiResponse<CalendarEvent>> {
-    if (import.meta.env.MODE !== "test") {
+    if (import.meta.env.MODE === "test") {
       return mapEventResponse(
-        asEventResponse(
-          await convex.mutation(api.events.updateEvent, {
-            id: id as never,
-            title: request.title,
-            date: request.date,
-            startTime: request.startTime,
-            endTime: request.endTime,
-            endDate: request.endDate ?? null,
-            memberId: request.memberId as never,
-            isAllDay: request.isAllDay ?? false,
-            location: request.location ?? null,
-            recurrenceRule: request.recurrenceRule ?? null,
-            description: request.description ?? null,
-          }),
+        await httpClient.put<ApiResponse<CalendarEventResponse>>(
+          `/calendar/events/${id}`,
+          request,
         ),
       );
     }
 
-    return mapEventResponse(
-      await httpClient.put<ApiResponse<CalendarEventResponse>>(
-        `/calendar/events/${id}`,
-        request,
-      ),
-    );
+    const record = await pb.collection(pbCollections.events).update(id, {
+      ...request,
+      isAllDay: request.isAllDay ?? false,
+    });
+    return mapEventResponse({ data: mapRecordToEvent(record) });
   },
 
   async deleteEvent(id: string): Promise<void> {
-    if (import.meta.env.MODE !== "test") {
-      await convex.mutation(api.events.deleteEvent, { id: id as never });
-      return;
+    if (import.meta.env.MODE === "test") {
+      return httpClient.delete(`/calendar/events/${id}`);
     }
 
-    return httpClient.delete(`/calendar/events/${id}`);
+    await pb.collection(pbCollections.events).delete(id);
   },
 
   async updateInstance(
@@ -165,42 +164,44 @@ export const calendarService = {
     date: string,
     request: UpdateEventRequest,
   ): Promise<ApiResponse<CalendarEvent>> {
-    if (import.meta.env.MODE !== "test") {
+    if (import.meta.env.MODE === "test") {
       return mapEventResponse(
-        asEventResponse(
-          await convex.mutation(api.events.updateInstance, {
-            parentId: parentId as never,
-            instanceDate: date,
-            title: request.title,
-            date: request.date,
-            startTime: request.startTime,
-            endTime: request.endTime,
-            memberId: request.memberId as never,
-            isAllDay: request.isAllDay ?? false,
-            location: request.location ?? null,
-            description: request.description ?? null,
-          }),
+        await httpClient.put<ApiResponse<CalendarEventResponse>>(
+          `/calendar/events/${parentId}/instances/${date}`,
+          request,
         ),
       );
     }
 
-    return mapEventResponse(
-      await httpClient.put<ApiResponse<CalendarEventResponse>>(
-        `/calendar/events/${parentId}/instances/${date}`,
-        request,
-      ),
-    );
+    const familyId = await requireFamilyId();
+    const record = await pb.collection(pbCollections.events).create({
+      ...request,
+      familyId,
+      recurringEventId: parentId,
+      originalDate: date,
+      isAllDay: request.isAllDay ?? false,
+      source: "NATIVE",
+    });
+    return mapEventResponse({ data: mapRecordToEvent(record) });
   },
 
   async deleteInstance(parentId: string, date: string): Promise<void> {
-    if (import.meta.env.MODE !== "test") {
-      await convex.mutation(api.events.deleteInstance, {
-        parentId: parentId as never,
-        date,
-      });
-      return;
+    if (import.meta.env.MODE === "test") {
+      return httpClient.delete(
+        `/calendar/events/${parentId}/instances/${date}`,
+      );
     }
 
-    return httpClient.delete(`/calendar/events/${parentId}/instances/${date}`);
+    const familyId = await requireFamilyId();
+    const record = await pb
+      .collection(pbCollections.events)
+      .getFirstListItem(
+        [
+          pb.filter("familyId = {:familyId}", { familyId }),
+          pb.filter("recurringEventId = {:parentId}", { parentId }),
+          pb.filter("date = {:date}", { date }),
+        ].join(" && "),
+      );
+    await pb.collection(pbCollections.events).delete(record.id);
   },
 };

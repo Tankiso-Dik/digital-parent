@@ -61,7 +61,7 @@ Why I chose what I chose:
 
 ## Current Status
 
-**v0.3.8** — Calendar, chores, lists, and family setup run against PocketBase locally. <!-- x-release-please-version -->
+**v0.3.9** — Calendar, chores, lists, and family setup run against PocketBase locally. <!-- x-release-please-version -->
 
 | Module   | Status           |
 | -------- | ---------------- |

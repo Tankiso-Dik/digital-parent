@@ -1,26 +1,13 @@
 # FamilyHub
 
-[![CI](https://github.com/joe-bor/FamilyHub/actions/workflows/ci.yml/badge.svg)](https://github.com/joe-bor/FamilyHub/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-**[Live Demo](https://familyhub.joe-bor.me/)** · Try it out
-
-<p align="center">
-  <img src="docs/screenshots/calendar-weekly.png" alt="Weekly calendar view with color-coded family events" width="800">
-</p>
-
-A family dashboard I'm building to organize our household — calendars, chores, meals, and more. Built with React 19 and designed for our kitchen tablet, but works great on phones too.
+A family dashboard for organizing your household — calendars, chores, meals, and more. Built with React 19 and designed for kitchen tablets, but works great on phones too.
 
 ## What It Does
 
-<p align="center">
-  <img src="docs/screenshots/mobile-home.png" alt="Mobile home dashboard" width="300">
-</p>
-
 - **Calendar** — Four views (daily, weekly, monthly, schedule list), color-coded by family member, full CRUD operations
+- **Chores** — Assign tasks to family members, track completion
+- **Lists** — Shared grocery and to-do lists with categories
 - **Family Management** — Onboarding flow with member profiles and color assignment
-- **PWA** — Installable on any device, offline support coming soon
-- **More modules** — Chores, Meals, Lists, Photos (UI ready, backend coming)
 
 ## Prerequisites
 
@@ -61,17 +48,14 @@ Why I chose what I chose:
 
 ## Current Status
 
-**v0.3.8** — Calendar, chores, lists, and family setup run against PocketBase locally. <!-- x-release-please-version -->
+**v0.3.8** — Full-stack app running with React + PocketBase. <!-- x-release-please-version -->
 
 | Module   | Status           |
 | -------- | ---------------- |
 | Calendar | ✅ Complete      |
-| Chores   | ✅ PocketBase    |
-| Meals    | 🎨 UI ready      |
-| Lists    | ✅ PocketBase    |
-| Photos   | 🎨 UI ready      |
-
-See [ROADMAP.md](docs/ROADMAP.md) for the full journey and what's next.
+| Chores   | ✅ Complete      |
+| Lists    | ✅ Complete      |
+| Auth     | ✅ PocketBase    |
 
 ## Why I Built This
 
@@ -83,6 +67,8 @@ Building is fun. Shipping is better.
 
 See [CLAUDE.md](CLAUDE.md) for the deep dive on patterns, state management, testing strategies, and code conventions.
 
+See [PocketBase Backend](docs/POCKETBASE.md) for backend setup and schema details.
+
 ## License
 
-[MIT](LICENSE) — do whatever you want with it.
+[MIT](LICENSE)

@@ -19,6 +19,7 @@ export interface FamilyMember {
   color: FamilyColor;
   avatarUrl?: string;
   email?: string;
+  role?: "parent" | "child";
 }
 
 /**

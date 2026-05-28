@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useFamilyMembers, useFamilyName, useLogout } from "@/api";
 import { FamilySettingsModal, MemberProfileModal } from "@/components/settings";
 import { Button } from "@/components/ui/button";
+import { usePermissions } from "@/hooks";
 import { colorMap } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/stores";
@@ -10,6 +11,7 @@ import { useAppStore } from "@/stores";
 export function SidebarMenu() {
   const isOpen = useAppStore((state) => state.isSidebarOpen);
   const closeSidebar = useAppStore((state) => state.closeSidebar);
+  const { canEdit } = usePermissions();
 
   // From family-store
   const familyName = useFamilyName();
@@ -35,6 +37,7 @@ export function SidebarMenu() {
   if (!isOpen) return null;
 
   const handleOpenMemberProfile = (memberId: string) => {
+    if (!canEdit) return;
     setSelectedMemberId(memberId);
   };
 
@@ -43,7 +46,9 @@ export function SidebarMenu() {
   };
 
   const menuItems = [
-    { icon: Users, label: "Family Settings", action: handleOpenSettings },
+    ...(canEdit
+      ? [{ icon: Users, label: "Family Settings", action: handleOpenSettings }]
+      : []),
     { icon: LogOut, label: "Sign Out", action: logout },
   ];
 
@@ -83,7 +88,13 @@ export function SidebarMenu() {
                   <button
                     key={member.id}
                     onClick={() => handleOpenMemberProfile(member.id)}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors"
+                    disabled={!canEdit}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
+                      canEdit
+                        ? "hover:bg-muted cursor-pointer"
+                        : "cursor-default opacity-90",
+                    )}
                   >
                     {member.avatarUrl ? (
                       <img

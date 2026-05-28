@@ -35,7 +35,7 @@ import {
   WeeklyCalendar,
 } from "@/components/calendar";
 import { toast } from "@/components/ui/toaster";
-import { useIsMobile } from "@/hooks";
+import { useIsMobile, usePermissions } from "@/hooks";
 import { buildRRule } from "@/lib/recurrence-utils";
 import { format24hTo12h, formatLocalDate } from "@/lib/time-utils";
 import type { CalendarEvent, CreateEventRequest } from "@/lib/types";
@@ -83,6 +83,7 @@ export function CalendarModule() {
   const { currentDate, calendarView, filter, isAddEventModalOpen } =
     useCalendarState();
   const isViewingToday = useIsViewingToday();
+  const { canCreate } = usePermissions();
 
   // Event detail modal state
   const {
@@ -469,7 +470,7 @@ export function CalendarModule() {
       {renderCalendarView()}
 
       {/* FAB */}
-      <AddEventButton onClick={openAddEventModal} />
+      {canCreate && <AddEventButton onClick={openAddEventModal} />}
 
       {/* Add Event Modal */}
       <EventFormModal

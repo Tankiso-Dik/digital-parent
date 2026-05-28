@@ -20,7 +20,7 @@ interface ListCreateSheetProps {
 const kindOptions = [
   {
     value: "to-do",
-    label: "Reward ladder",
+    label: "Shared list",
     description: "Track steps toward privileges, streaks, and earned wins",
     icon: Trophy,
   },

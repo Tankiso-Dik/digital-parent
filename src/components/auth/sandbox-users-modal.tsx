@@ -28,9 +28,8 @@ export function SandboxUsersModal() {
             Sandbox Users
           </DialogTitle>
           <DialogDescription>
-            This application uses hashed passwords for security. For
-            school/grading purposes, here are all existing accounts currently in
-            the development database.
+            For school/grading purposes, here are all existing accounts
+            currently in the development database.
           </DialogDescription>
         </DialogHeader>
 

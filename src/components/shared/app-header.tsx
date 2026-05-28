@@ -1,7 +1,20 @@
-import { Cloud, Menu, Settings, Sun } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  Cloud,
+  Menu,
+  Settings,
+  Sun,
+  Users,
+} from "lucide-react";
 import { useFamilyMembers, useFamilyName } from "@/api";
 import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useIsMobile, usePermissions, useProfileLens } from "@/hooks";
 import { colorMap } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useAppStore, useCalendarStore } from "@/stores";
@@ -16,6 +29,13 @@ export function AppHeader() {
 
   // From app-store
   const openSidebar = useAppStore((state) => state.openSidebar);
+  const { activeMemberId } = useProfileLens();
+  const { canEdit } = usePermissions();
+  const setActiveMemberId = useAppStore((state) => state.setActiveMemberId);
+
+  const activeMember = activeMemberId
+    ? familyMembers.find((m) => m.id === activeMemberId)
+    : null;
 
   // Mobile detection
   const isMobile = useIsMobile();
@@ -83,27 +103,107 @@ export function AppHeader() {
           </div>
         )}
 
-        {/* Family member indicators - hidden on mobile (used for calendar filtering) */}
+        {/* Profile Switcher */}
         {!isMobile && familyMembers.length > 0 && (
-          <div className="flex items-center gap-1.5">
-            {familyMembers.slice(0, 6).map((member) => (
-              <div
-                key={member.id}
-                className={`w-3 h-3 rounded-full ${colorMap[member.color]?.bg || "bg-gray-300"}`}
-                title={member.name}
-              />
-            ))}
-          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 h-9 border-border bg-card"
+              >
+                {activeMember ? (
+                  <>
+                    <div
+                      className={cn(
+                        "w-4 h-4 rounded-full",
+                        colorMap[activeMember.color]?.bg || "bg-gray-300",
+                      )}
+                    />
+                    <span className="font-medium text-sm">
+                      {activeMember.name}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium text-sm">Parent View</span>
+                  </>
+                )}
+                <ChevronDown className="h-4 w-4 text-muted-foreground ml-1" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-56 p-2">
+              <div className="space-y-1">
+                <p className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Switch Profile
+                </p>
+                <button
+                  onClick={() => setActiveMemberId(null)}
+                  className={cn(
+                    "w-full flex items-center justify-between px-2 py-2 text-sm rounded-md transition-colors hover:bg-accent",
+                    !activeMemberId
+                      ? "bg-accent text-accent-foreground"
+                      : "text-foreground",
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                      <Users className="h-3 w-3 text-muted-foreground" />
+                    </div>
+                    <span>Parent View</span>
+                  </div>
+                  {!activeMemberId && <Check className="h-4 w-4" />}
+                </button>
+
+                <div className="h-px bg-border my-1" />
+
+                {familyMembers.map((member) => (
+                  <button
+                    key={member.id}
+                    onClick={() => setActiveMemberId(member.id)}
+                    className={cn(
+                      "w-full flex items-center justify-between px-2 py-2 text-sm rounded-md transition-colors hover:bg-accent",
+                      activeMemberId === member.id
+                        ? "bg-accent text-accent-foreground"
+                        : "text-foreground",
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={cn(
+                          "w-6 h-6 rounded-full flex items-center justify-center",
+                          colorMap[member.color]?.light || "bg-gray-100",
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            "w-2.5 h-2.5 rounded-full",
+                            colorMap[member.color]?.bg || "bg-gray-300",
+                          )}
+                        />
+                      </div>
+                      <span>{member.name}</span>
+                    </div>
+                    {activeMemberId === member.id && (
+                      <Check className="h-4 w-4" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         )}
 
         {/* Settings */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <Settings className="h-5 w-5" />
-        </Button>
+        {canEdit && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <Settings className="h-5 w-5" />
+          </Button>
+        )}
       </div>
     </header>
   );

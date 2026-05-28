@@ -2,6 +2,7 @@ import type { UseQueryOptions } from "@tanstack/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiException } from "@/api/client";
 import { choreService } from "@/api/services";
+import { useProfileLens } from "@/hooks";
 import type {
   ApiResponse,
   Chore,
@@ -20,10 +21,21 @@ export function useChores(
     "queryKey" | "queryFn"
   >,
 ) {
+  const { activeMemberId } = useProfileLens();
+
   return useQuery({
     queryKey: choreKeys.list(),
     queryFn: choreService.getChores,
     staleTime: 5 * 60 * 1000,
+    select: (response) => {
+      if (!activeMemberId) return response;
+      return {
+        ...response,
+        data: response.data.filter(
+          (chore) => chore.assignedToMemberId === activeMemberId,
+        ),
+      };
+    },
     ...options,
   });
 }

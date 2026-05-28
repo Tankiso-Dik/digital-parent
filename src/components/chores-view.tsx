@@ -10,6 +10,7 @@ import {
 import { ChoreFormSheet } from "@/components/chores/chore-form-sheet";
 import { ChoreLane } from "@/components/chores/chore-lane";
 import { Button } from "@/components/ui/button";
+import { usePermissions, useProfileLens } from "@/hooks";
 import { formatLocalDate } from "@/lib/time-utils";
 import type { Chore, FamilyMember } from "@/lib/types";
 
@@ -33,12 +34,17 @@ export function ChoresView() {
   const updateChore = useUpdateChore();
   const deleteChore = useDeleteChore();
 
+  const { activeMemberId } = useProfileLens();
+  const { canCreate } = usePermissions();
+
   const chores = useMemo(() => data?.data ?? [], [data]);
   const today = formatLocalDate(new Date());
-  const board = useMemo(
-    () => buildChoreLanes({ chores, members, today }),
-    [chores, members, today],
-  );
+  const board = useMemo(() => {
+    const visibleMembers = activeMemberId
+      ? members.filter((m) => m.id === activeMemberId)
+      : members;
+    return buildChoreLanes({ chores, members: visibleMembers, today });
+  }, [chores, members, today, activeMemberId]);
   const defaultAssigneeId = members[0]?.id;
   const createDefaultValues = useMemo(
     () =>
@@ -54,14 +60,16 @@ export function ChoresView() {
             <h1 className="text-[24px] leading-8 font-semibold text-foreground">
               Responsibilities
             </h1>
-            <Button
-              type="button"
-              aria-label="Add chore"
-              size="icon"
-              onClick={() => setCreateOpen(true)}
-            >
-              <Plus className="h-5 w-5" />
-            </Button>
+            {canCreate && (
+              <Button
+                type="button"
+                aria-label="Add chore"
+                size="icon"
+                onClick={() => setCreateOpen(true)}
+              >
+                <Plus className="h-5 w-5" />
+              </Button>
+            )}
           </div>
 
           {isLoading && (
@@ -85,14 +93,16 @@ export function ChoresView() {
               <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-muted-foreground">
                 Add the first responsibility to start building daily rhythm.
               </p>
-              <Button
-                type="button"
-                className="mt-5"
-                onClick={() => setCreateOpen(true)}
-              >
-                <Plus className="h-4 w-4" />
-                Add task
-              </Button>
+              {canCreate && (
+                <Button
+                  type="button"
+                  className="mt-5"
+                  onClick={() => setCreateOpen(true)}
+                >
+                  <Plus className="h-4 w-4" />
+                  Add task
+                </Button>
+              )}
             </div>
           )}
 

@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { Check, Circle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePermissions } from "@/hooks";
 import { parseLocalDate } from "@/lib/time-utils";
 import type { Chore } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,7 @@ export function ChoreRow({
   onDelete,
 }: ChoreRowProps) {
   const dueLabel = getDueLabel(chore, today);
+  const { canDelete } = usePermissions();
 
   return (
     <div
@@ -89,16 +91,18 @@ export function ChoreRow({
         )}
       </div>
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        aria-label={`Delete ${chore.title}`}
-        onClick={onDelete}
-        className="text-muted-foreground hover:text-destructive"
-      >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+      {canDelete && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label={`Delete ${chore.title}`}
+          onClick={onDelete}
+          className="text-muted-foreground hover:text-destructive"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 }
